@@ -511,7 +511,10 @@ class Environment(Mapping):
 
     def ref(self, xml_id, raise_if_not_found=True):
         """Return the record corresponding to the given ``xml_id``."""
-        return self['ir.model.data'].xmlid_to_object(xml_id, raise_if_not_found=raise_if_not_found)
+        result = self['ir.model.data'].xmlid_to_object(xml_id, raise_if_not_found=raise_if_not_found)
+        if result:
+            return result.access_control(raise_if_access_error=raise_if_not_found)
+        return result
 
     def is_superuser(self):
         """ Return whether the environment is in superuser mode. """

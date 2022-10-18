@@ -107,7 +107,7 @@ class WebsiteSaleDelivery(WebsiteSale):
             values['deliveries'] = delivery_carriers.sudo()
 
         values['delivery_has_storable'] = has_storable_products
-        values['delivery_action_id'] = request.env.ref('delivery.action_delivery_carrier_form').id
+        values['delivery_action_id'] = request.env['ir.actions.act_window'].sudo().env.ref('delivery.action_delivery_carrier_form').id
         return values
 
     def _update_website_sale_delivery_return(self, order, **post):

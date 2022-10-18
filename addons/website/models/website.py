@@ -302,6 +302,7 @@ class Website(models.Model):
             new_menu = menu.copy({
                 'parent_id': t_menu.id,
                 'website_id': self.id,
+                'page_id': None,
             })
             for submenu in menu.child_id:
                 copy_menu(submenu, new_menu)

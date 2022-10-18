@@ -61,6 +61,7 @@ class ResConfigSettings(models.TransientModel):
             },
         }
 
+    # open_default_user() in multicompany_base will replace this open_default_user().
     def open_default_user(self):
         action = self.env["ir.actions.actions"]._for_xml_id("base.action_res_users")
         if self.env.ref('base.default_user', raise_if_not_found=False):

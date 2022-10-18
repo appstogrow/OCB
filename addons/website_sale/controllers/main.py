@@ -883,7 +883,7 @@ class WebsiteSale(http.Controller):
             errors=[],
             partner=order.partner_id.id,
             order=order,
-            payment_action_id=request.env.ref('payment.action_payment_acquirer').id,
+            payment_action_id=request.env['ir.actions.act_window'].sudo().env.ref('payment.action_payment_acquirer').id,
             return_url= '/shop/payment/validate',
             bootstrap_formatting= True
         )

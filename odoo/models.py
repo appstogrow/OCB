@@ -800,25 +800,43 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             for r in missing
         )
         fields = ['module', 'model', 'name', 'res_id']
+        if self.env['ir.model.fields'].search([('name', '=', 'company_id')]):
+            fields.append('company_id')
 
         # disable eventual async callback / support for the extent of
         # the COPY FROM, as these are apparently incompatible
         callback = psycopg2.extensions.get_wait_callback()
         psycopg2.extensions.set_wait_callback(None)
         try:
-            cr.copy_from(io.StringIO(
-                u'\n'.join(
-                    u"%s\t%s\t%s\t%d" % (
-                        modname,
-                        record._name,
-                        xids[record.id][1],
-                        record.id,
-                    )
-                    for record in missing
-                )),
-                table='ir_model_data',
-                columns=fields,
-            )
+            if 'company_id' in fields:
+                cr.copy_from(io.StringIO(
+                    u'\n'.join(
+                        u"%s\t%s\t%s\t%d\t%d" % (
+                            modname,
+                            record._name,
+                            xids[record.id][1],
+                            record.id,
+                            record.company_id.id,
+                        )
+                        for record in missing
+                    )),
+                    table='ir_model_data',
+                    columns=fields,
+                )
+            else:
+                cr.copy_from(io.StringIO(
+                    u'\n'.join(
+                        u"%s\t%s\t%s\t%d" % (
+                            modname,
+                            record._name,
+                            xids[record.id][1],
+                            record.id,
+                        )
+                        for record in missing
+                    )),
+                    table='ir_model_data',
+                    columns=fields,
+                )
         finally:
             psycopg2.extensions.set_wait_callback(callback)
         self.env['ir.model.data'].invalidate_cache(fnames=fields)
@@ -3251,9 +3269,11 @@ Fields:
         """ Check the companies of the values of the given field names.
 
         :param list fnames: names of relational fields to check
-        :raises UserError: if the `company_id` of the value of any field is not
-            in `[False, self.company_id]` (or `self` if
+        :raises UserError: if the `company_id.id` of the value of any field is not
+            in `[False, self.company_id.id]` (or `self.id` if
             :class:`~odoo.addons.base.models.res_company`).
+
+        If multicompany_base is installed, also accept company_id 1.
 
         For :class:`~odoo.addons.base.models.res_users` relational fields,
         verifies record company is in `company_ids` fields.
@@ -3279,6 +3299,9 @@ Fields:
             return
 
         inconsistencies = []
+        consistent_company_ids = [False]
+        if self.env['ir.module.module'].sudo().search([('name', '=', 'multicompany_base')]).state == 'installed':
+            consistent_company_ids.append(1)
         for record in self:
             company = record.company_id if record._name != 'res.company' else record
             # The first part of the check verifies that all records linked via relation fields are compatible
@@ -3287,9 +3310,9 @@ Fields:
                 corecord = record.sudo()[name]
                 # Special case with `res.users` since an user can belong to multiple companies.
                 if corecord._name == 'res.users' and corecord.company_ids:
-                    if not (company <= corecord.company_ids):
+                    if not (company.id in corecord.company_ids.ids + consistent_company_ids):
                         inconsistencies.append((record, name, corecord))
-                elif not (corecord.company_id <= company):
+                elif not (corecord.company_id.id in [company.id] + consistent_company_ids):
                     inconsistencies.append((record, name, corecord))
             # The second part of the check (for property / company-dependent fields) verifies that the records
             # linked via those relation fields are compatible with the company that owns the property value, i.e.
@@ -3300,9 +3323,9 @@ Fields:
                 # Special case with `res.users` since an user can belong to multiple companies.
                 corecord = record.sudo()[name]
                 if corecord._name == 'res.users' and corecord.company_ids:
-                    if not (company <= corecord.company_ids):
+                    if not (company.id in corecord.company_ids.ids + consistent_company_ids):
                         inconsistencies.append((record, name, corecord))
-                elif not (corecord.company_id <= company):
+                elif not (corecord.company_id.id in [company.id] + consistent_company_ids):
                     inconsistencies.append((record, name, corecord))
 
         if inconsistencies:
@@ -5320,7 +5343,7 @@ Fields:
             else:
                 (key, comparator, value) = d
                 if comparator in ('child_of', 'parent_of'):
-                    result.append(self.search([('id', 'in', self.ids), d]))
+                    result.append(self.with_context(active_test=False).search([('id', 'in', self.ids), d]))
                     continue
                 if key.endswith('.id'):
                     key = key[:-3]

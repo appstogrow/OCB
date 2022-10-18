@@ -654,6 +654,8 @@ class PosConfig(models.Model):
     # a localisation installed
     @api.model
     def post_install_pos_localisation(self, companies=False):
+        if self.env['ir.module.module'].sudo().search([('name', '=', 'multicompany_base')]).state == 'installed':
+            return
         self = self.sudo()
         if not companies:
             companies = self.env['res.company'].search([])

@@ -282,7 +282,10 @@ class Registry(Mapping):
         # on a fully loaded registry, and not on a registry being loaded.
         if self.ready:
             for model in env.values():
-                model._register_hook()
+                if model._name in ('multicompany.config', 'multicompany.security'):
+                    model._register_hook(update_module=True)
+                else:
+                    model._register_hook()
             env['base'].flush()
 
     @lazy_property
