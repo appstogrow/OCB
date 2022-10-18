@@ -22,6 +22,8 @@ class Website(models.Model):
     salesperson_id = fields.Many2one('res.users', string='Salesperson')
 
     def _get_default_website_team(self):
+        if self.env['ir.module.module'].sudo().search([('name', '=', 'multicompany_base')]).state == 'installed':
+            return None
         try:
             team = self.env.ref('sales_team.salesteam_website_sales')
             return team if team.active else None

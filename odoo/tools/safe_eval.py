@@ -327,6 +327,38 @@ def safe_eval(expr, globals_dict=None, locals_dict=None, mode="eval", nocopy=Fal
             locals_dict = {}
         locals_dict.update(_BUILTINS)
     c = test_expr(expr, _SAFE_OPCODES, mode=mode)
+    if mode == 'exec':
+        # Untrusted code should NOT use the database cursor to execute SQL commands!
+        # That would bypass all the security rules!
+        # key = unsafe
+        # value = list of safe exceptions
+        unsafe_except = {
+            'cache': [],
+            '.cr': ['.create', '.credit'],
+            '._cr': ['._cron'],
+            '.execute': [],
+            '._execute': [],
+            '.with': ['.with_context(active_test=False)'],
+            '._with': [],
+            '.sql': [],
+            '._sql': [],
+            '.sudo': [],
+            '._sudo': [],
+            '._': [],
+            '__': [],
+        }
+        if 'env' in globals_dict and globals_dict['env'].su == True:
+            # With superuser privileges, allow private methods
+            del unsafe_except['._']
+        testexpr = expr.decode() if isinstance(expr, bytes) else expr
+        for text in unsafe_except:
+            if text in testexpr:
+                count_total = expr.count(text)
+                safe_exceptions = unsafe_except[text]
+                count_safe = sum([expr.count(safe) for safe in safe_exceptions])
+                count_unsafe = count_total - count_safe
+                if count_unsafe:
+                    raise odoo.exceptions.UserError('safe_eval: The code cannot have this phrase:  {}'.format(text))
     try:
         return unsafe_eval(c, globals_dict, locals_dict)
     except odoo.exceptions.UserError:
