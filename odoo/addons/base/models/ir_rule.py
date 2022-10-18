@@ -216,7 +216,7 @@ class IrRule(models.Model):
         return res
 
     def _make_access_error(self, operation, records):
-        _logger.info('Access Denied by record rules for operation: %s on record ids: %r, uid: %s, model: %s', operation, records.ids[:6], self._uid, records._name)
+        _logger.info('Access Denied by record rules for operation: %s on record ids: %r, uid: %s, model: %s, company_id: %s', operation, records.ids[:6], self._uid, records._name, self.env.company.id)
         self = self.with_context(self.env.user.context_get())
 
         model = records._name

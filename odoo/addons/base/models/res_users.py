@@ -661,6 +661,7 @@ class Users(models.Model):
     def check_super(self, passwd):
         return check_super(passwd)
 
+    # Replaced in multicompany_base
     @api.model
     def _update_last_login(self):
         # only create new records to avoid any side-effect on concurrent transactions

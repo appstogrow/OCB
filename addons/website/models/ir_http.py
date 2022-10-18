@@ -180,6 +180,12 @@ class Http(models.AbstractModel):
                 env = api.Environment(cr, SUPERUSER_ID, {})
                 request.website_routing = env['website'].get_current_website().id
 
+        website_id = request.context.get('website_id')
+        if website_id:
+            company = request.env['website'].browse(website_id).record_company()
+            if company:
+                request.env.company = company
+
         response = super(Http, cls)._dispatch()
 
         if not is_rerouting:
