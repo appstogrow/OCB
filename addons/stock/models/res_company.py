@@ -175,11 +175,12 @@ class Company(models.Model):
     @api.model
     def create(self, vals):
         company = super(Company, self).create(vals)
+        company = company.with_company(company)
         company.sudo()._create_per_company_locations()
         company.sudo()._create_per_company_sequences()
         company.sudo()._create_per_company_picking_types()
         company.sudo()._create_per_company_rules()
-        self.env['stock.warehouse'].sudo().create({
+        company.env['stock.warehouse'].sudo().create({
             'name': company.name,
             'code': self.env.context.get('default_code') or company.name[:5],
             'company_id': company.id,

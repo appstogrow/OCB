@@ -1767,6 +1767,10 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         :return: list of pairs ``(id, text_repr)`` for each records
         :rtype: list(tuple)
         """
+        if self.env.su:
+            # name_get(): Bypass global rules
+            self = self.with_context(bypass_global_rules=True)
+
         result = []
         name = self._rec_name
         if name in self._fields:
@@ -3385,7 +3389,10 @@ Fields:
            :raise UserError: * if current ir.rules do not permit this operation.
            :return: None if the operation is allowed
         """
-        if self.env.su:
+        # check_access_rule()
+        if self.env.su and (
+            self.env.context.get("bypass_global_rules") or self.env.context.get("_force_unlink")
+        ):
             return
 
         # SQL Alternative if computing in-memory is too slow for large dataset
@@ -3416,7 +3423,7 @@ Fields:
 
     def _filter_access_rules(self, operation):
         """ Return the subset of ``self`` for which ``operation`` is allowed. """
-        if self.env.su:
+        if self.env.su and self.env.context.get("bypass_global_rules"):
             return self
 
         if not self._ids:
@@ -4193,6 +4200,8 @@ Fields:
         return self.create(values)
 
     def _load_records(self, data_list, update=False):
+        if self.env.su:
+            self = self.with_context(bypass_global_rules=True)
         """ Create or update records of this model, and assign XMLIDs.
 
             :param data_list: list of dicts with keys `xml_id` (XMLID to
@@ -4343,7 +4352,7 @@ Fields:
 
            :param query: the current query object
         """
-        if self.env.su:
+        if self.env.su and self.env.context.get("bypass_global_rules"):
             return
 
         # apply main rules on the object
@@ -5084,7 +5093,7 @@ Fields:
         """
         return self._browse(env, self._ids, self._prefetch_ids)
 
-    def sudo(self, flag=True):
+    def sudo(self, flag=True, bypass_global_rules=False):
         """ sudo([flag=True])
 
         Returns a new version of this recordset with superuser mode enabled or
@@ -5363,6 +5372,10 @@ Fields:
         return self.browse([rec.id for rec in self if func(rec)])
 
     def filtered_domain(self, domain):
+        if self.env.su:
+            self = self.with_context(bypass_global_rules=True)
+            # otherwise this gives error:
+            # data = rec.mapped(key)
         if not domain: return self
         result = []
         for d in reversed(domain):
