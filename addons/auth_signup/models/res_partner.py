@@ -51,7 +51,6 @@ class ResPartner(models.Model):
 
         res = dict.fromkeys(self.ids, False)
         for partner in self:
-            base_url = partner.get_base_url()
             # when required, make sure the partner has a valid signup token
             if self.env.context.get('signup_valid') and not partner.user_ids:
                 partner.sudo().signup_prepare()
@@ -93,6 +92,7 @@ class ResPartner(models.Model):
 
             signup_url = "/web/%s?%s" % (route, werkzeug.urls.url_encode(query))
             if not self.env.context.get('relative_url'):
+                base_url = partner.get_base_url()
                 signup_url = werkzeug.urls.url_join(base_url, signup_url)
             res[partner.id] = signup_url
 
