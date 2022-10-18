@@ -2230,6 +2230,8 @@ class IrModelData(models.Model):
 
     @api.model
     def _process_end_unlink_record(self, record):
+        if record.env.su:
+            record = record.with_context(bypass_global_rules=True)
         record.unlink()
 
     @api.model

@@ -279,6 +279,12 @@ class MailController(http.Controller):
 
     @http.route('/mail/init_messaging', type='json', auth='user')
     def mail_init_messaging(self):
+        try:
+            public_partner = request.env.ref('base.public_partner').sudo().mail_partner_format(),
+        except:
+            public_partner = request.env['res.users'].with_context(active_test=False).search(
+                [('groups_id', '=', request.env.ref('base.group_public').id),('company_id','=',request.env.company.id)]
+            ).ensure_one().partner_id.mail_partner_format()
         values = {
             'needaction_inbox_counter': request.env['res.partner'].get_needaction_count(),
             'starred_counter': request.env['res.partner'].get_starred_count(),
@@ -291,7 +297,7 @@ class MailController(http.Controller):
             'moderation_counter': request.env.user.moderation_counter,
             'moderation_channel_ids': request.env.user.moderation_channel_ids.ids,
             'partner_root': request.env.ref('base.partner_root').sudo().mail_partner_format(),
-            'public_partner': request.env.ref('base.public_partner').sudo().mail_partner_format(),
+            'public_partner': public_partner,
             'public_partners': [partner.mail_partner_format() for partner in request.env.ref('base.group_public').sudo().with_context(active_test=False).users.partner_id],
             'current_partner': request.env.user.partner_id.mail_partner_format(),
             'current_user_id': request.env.user.id,

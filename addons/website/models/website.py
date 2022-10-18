@@ -645,7 +645,7 @@ class Website(models.Model):
 
         # Sort on country_group_ids so that we fall back on a generic website:
         # websites with empty country_group_ids will be first.
-        found_websites = self.search([('domain', 'ilike', _remove_port(domain_name))]).sorted('country_group_ids')
+        found_websites = self.with_context(bypass_global_rules=True).search([('domain', 'ilike', _remove_port(domain_name))]).sorted('country_group_ids')
         # Filter for the exact domain (to filter out potential subdomains) due
         # to the use of ilike.
         websites = found_websites.filtered(lambda w: _filter_domain(w, domain_name))

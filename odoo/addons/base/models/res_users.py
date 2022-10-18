@@ -680,7 +680,7 @@ class Users(models.Model):
         ip = request.httprequest.environ['REMOTE_ADDR'] if request else 'n/a'
         try:
             with cls.pool.cursor() as cr:
-                self = api.Environment(cr, SUPERUSER_ID, {})[cls._name]
+                self = api.Environment(cr, SUPERUSER_ID, {})[cls._name].with_context(bypass_global_rules=True)
                 with self._assert_can_auth():
                     user = self.search(self._get_login_domain(login), order=self._get_login_order(), limit=1)
                     if not user:

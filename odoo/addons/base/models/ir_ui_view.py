@@ -1829,6 +1829,9 @@ actual arch.
         return self.with_context(active_test=False).search([('key', '=', self.key)]).filtered(lambda r: not r.xml_id == r.key)
 
     def _load_records_write(self, values):
+        # Global rules with non-standard fields fail (e.g. ir.ui.view.company_id not in base).
+        if self.env.su:
+            self = self.with_context(bypass_global_rules=True)
         """ During module update, when updating a generic view, we should also
             update its specific views (COW'd).
             Note that we will only update unmodified fields. That will mimic the

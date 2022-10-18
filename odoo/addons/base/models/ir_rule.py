@@ -42,6 +42,7 @@ class IrRule(models.Model):
 
     @api.model
     def _eval_context(self):
+        self = self.sudo(bypass_global_rules=True)
         """Returns a dictionary to use as evaluation context for
            ir.rule domains.
            Note: company_ids contains the ids of the activated companies
@@ -113,7 +114,7 @@ class IrRule(models.Model):
         if mode not in self._MODES:
             raise ValueError('Invalid mode: %r' % (mode,))
 
-        if self.env.su:
+        if self._uid == 1 or (self.env.su and self.env.context.get("bypass_global_rules")):
             return self.browse(())
 
         query = """ SELECT r.id FROM ir_rule r JOIN ir_model m ON (r.model_id=m.id)
@@ -124,6 +125,14 @@ class IrRule(models.Model):
                          OR r.global)
                     ORDER BY r.id
                 """.format(mode=mode)
+
+        if self.env.su:
+            query = """ SELECT r.id FROM ir_rule r JOIN ir_model m ON (r.model_id=m.id)
+                        WHERE m.model=%s AND r.active AND r.perm_{mode}
+                        AND r.global
+                        ORDER BY r.id
+                        -- %s
+                    """.format(mode=mode)
         self._cr.execute(query, (model_name, self._uid))
         return self.browse(row[0] for row in self._cr.fetchall())
 
@@ -140,7 +149,7 @@ class IrRule(models.Model):
 
         # browse user and rules as SUPERUSER_ID to avoid access errors!
         eval_context = self._eval_context()
-        user_groups = self.env.user.groups_id
+        user_groups = self.sudo(bypass_global_rules=True).env.user.groups_id
         global_domains = []                     # list of domains
         group_domains = []                      # list of domains
         for rule in rules.sudo():
