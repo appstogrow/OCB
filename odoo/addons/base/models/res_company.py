@@ -300,3 +300,12 @@ class Company(models.Model):
             main_company = self.env['res.company'].sudo().search([], limit=1, order="id")
 
         return main_company
+
+    """
+    oca/server-auth/password_security needs to read the stored user.company_id.
+    When another company is selected, sudo(bypass_global_rules=False) causes error.
+    """
+    def _read(self, fields):
+        if self.env.su:
+            self = self.with_context(bypass_global_rules=True)
+        super(Company, self)._read(fields)
