@@ -5089,9 +5089,8 @@ Fields:
         if not isinstance(flag, bool):
             _logger.warning("deprecated use of sudo(user), use with_user(user) instead", stack_info=True)
             return self.with_user(flag)
-        # SUPERUSER should always bypass global rules
         # sudo() should not change bypass_global_rules from True to False
-        if self._uid == SUPERUSER_ID or self.env.context.get('bypass_global_rules'):
+        if self.env.context.get('bypass_global_rules'):
             bypass_global_rules = True
         return self.with_env(self.env(su=flag)).with_context(bypass_global_rules=bypass_global_rules)
 

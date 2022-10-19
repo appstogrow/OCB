@@ -308,7 +308,9 @@ class AssetsBundle(object):
             'public': True,
             'raw': content.encode('utf8'),
         }
-        attachment = ira.with_user(SUPERUSER_ID).create(values)
+        # APPSTOGROW msudo: ref() access control. Create assets in main company.
+        main_company = self.env['base'].sudo(bypass_global_rules=True).env.ref('base.main_company')
+        attachment = ira.with_user(SUPERUSER_ID).with_company(main_company).create(values)
 
         url = self.get_asset_url(
             id=attachment.id,
