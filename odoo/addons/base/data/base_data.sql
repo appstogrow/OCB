@@ -143,3 +143,13 @@ select setval('res_users_id_seq', 1);
 insert into res_groups (id, name) VALUES (1, 'Employee');
 insert into ir_model_data (name, module, model, noupdate, res_id) VALUES ('group_user', 'base', 'res.groups', true, 1);
 select setval('res_groups_id_seq', 1);
+
+-- TESTING
+
+insert into res_company (id, name, partner_id, currency_id, create_date) VALUES (2, 'Test Company', 2, 1, now() at time zone 'UTC');
+insert into ir_model_data (name, module, model, noupdate, res_id) VALUES ('test_company', 'base', 'res.company', true, 2);
+select setval('res_company_id_seq', 2);
+
+insert into res_partner (id, name, company_id, create_date) VALUES (2, 'Test Company', 2, now() at time zone 'UTC');
+insert into ir_model_data (name, module, model, noupdate, res_id) VALUES ('test_partner', 'base', 'res.partner', true, 2);
+select setval('res_partner_id_seq', 2);

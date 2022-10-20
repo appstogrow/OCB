@@ -499,6 +499,8 @@ form: module.record_id""" % (xml_id,)
                 install_filename=self.xml_filename,
                 install_xmlid=rec_id,
             )
+            model.env.company = self.env.company
+            model.env.companies = self.env.companies
 
         self._test_xml_id(rec_id)
         xid = self.make_xml_id(rec_id)
@@ -732,7 +734,7 @@ def convert_file(cr, module, filename, idref, mode='update', noupdate=False, kin
         elif ext == '.sql':
             convert_sql_import(cr, fp)
         elif ext == '.xml':
-            convert_xml_import(cr, module, fp, idref, mode, noupdate)
+            convert_xml_import(cr, module, fp, idref, mode, noupdate, kind=kind)
         elif ext == '.js':
             pass # .js files are valid but ignored here.
         else:
@@ -778,7 +780,7 @@ def convert_csv_import(cr, module, fname, csvcontent, idref=None, mode='init',
 
 from .misc import frozendict
 
-def convert_xml_import(cr, module, xmlfile, idref=None, mode='init', noupdate=False, report=None):
+def convert_xml_import(cr, module, xmlfile, idref=None, mode='init', noupdate=False, report=None, kind=None):
     doc = etree.parse(xmlfile)
     schema = os.path.join(config['root_path'], 'import_xml.rng')
     relaxng = etree.RelaxNG(etree.parse(schema))
@@ -805,4 +807,8 @@ def convert_xml_import(cr, module, xmlfile, idref=None, mode='init', noupdate=Fa
         context = dict(obj.env.context)
         context.update({'bypass_global_rules': True})
         obj.env.context = frozendict(context)
+    if kind == 'demo':
+        company = obj.env['res.company'].browse(2)
+        obj.env.company = company
+        obj.env.companies = company
     obj.parse(doc.getroot())

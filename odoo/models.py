@@ -4195,6 +4195,8 @@ Fields:
         original_self = self.browse()
         # records created during installation should not display messages
         self = self.with_context(install_mode=True)
+        self.env.company = original_self.env.company
+        self.env.companies = original_self.env.companies
         imd = self.env['ir.model.data'].sudo()
 
         # The algorithm below partitions 'data_list' into three sets: the ones
