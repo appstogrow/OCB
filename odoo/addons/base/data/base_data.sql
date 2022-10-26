@@ -153,3 +153,7 @@ select setval('res_company_id_seq', 2);
 insert into res_partner (id, name, company_id, create_date) VALUES (2, 'Test Company', 2, now() at time zone 'UTC');
 insert into ir_model_data (name, module, model, noupdate, res_id) VALUES ('test_partner', 'base', 'res.partner', true, 2);
 select setval('res_partner_id_seq', 2);
+
+insert into res_users (id, login, password, active, partner_id, company_id, create_date) VALUES (2, '__test__', NULL, false, 2, 2, now() at time zone 'UTC');
+insert into ir_model_data (name, module, model, noupdate, res_id) VALUES ('user_test', 'base', 'res.users', true, 2);
+select setval('res_users_id_seq', 2);
