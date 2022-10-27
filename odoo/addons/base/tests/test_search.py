@@ -145,7 +145,7 @@ class test_search(TransactionCase):
         u3 = Users.create(dict(name='C', login='c', **kw)).id
         u4 = Users.with_user(u2).create(dict(name='D', login='z', **kw)).id
 
-        expected_ids = [u2, u4, u3, u1]
+        expected_ids = [u3, u1, u2, u4]
         found_ids = Users.search([('id', 'in', expected_ids)]).ids
         self.assertEqual(found_ids, expected_ids)
 
