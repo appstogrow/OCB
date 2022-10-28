@@ -118,27 +118,16 @@ class Base(models.AbstractModel):
         - self.env.ref('xmlid'): .access_control() is added to the api.
         - create() & write() for security reasons.
         """
-        # access_rights will always return True in superuser mode.
-        access_rights = self.check_access_rights('read', raise_exception=raise_if_access_error)
+        # access_ok will always be True in superuser mode.
+        access_ok = self.check_access_rights('read', raise_exception=raise_if_access_error)
 
-        # access_rule = record.check_access_rule('read') # will raise error if forbidden
-        def check_access_rule(operation):
-            if not self.env.user:
-                # cannot apply security rules for a user when there is no user
-                # example: ir_http.py _auth_method_public()
-                return
-            invalid = self - self._filter_access_rules_python(operation)
-            if not invalid:
-                return
-            forbidden = invalid.exists()
-            if forbidden:
-                return 'forbidden'
-            else:
-                return 'How can invalid evalutate True and forbidden evaluate False?'
-        access_rule = check_access_rule('read')
+        try:
+            self.check_access_rule('read')
+            rule_ok = True
+        except:
+            rule_ok = False
 
-        # Success if check_access_rights returns True and check_access_rule returns None
-        if access_rights and not access_rule:
+        if access_ok and rule_ok:
             return self
         else:
             if raise_if_access_error:
