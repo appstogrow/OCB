@@ -238,7 +238,9 @@ class IrRule(models.Model):
         operation_error = msg_heads[operation]
         resolution_info = _("Contact your administrator to request access if necessary.")
 
-        if not self.env.user.has_group('base.group_no_one') or not self.env.user.has_group('base.group_user'):
+        # APPSTOGROW: Max privileges are needed to read the user
+        user_sudo = self.env.user.sudo(bypass_global_rules=True)
+        if not user_sudo.has_group('base.group_no_one') or not user_sudo.has_group('base.group_user'):
             msg = """{operation_error}
 
 {resolution_info}""".format(
