@@ -307,6 +307,7 @@ class AssetsBundle(object):
             'type': 'binary',
             'public': True,
             'raw': content.encode('utf8'),
+            'company_id': 1,
         }
         attachment = ira.with_user(SUPERUSER_ID).create(values)
 
