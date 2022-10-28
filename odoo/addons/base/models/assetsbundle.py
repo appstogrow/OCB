@@ -307,6 +307,7 @@ class AssetsBundle(object):
             'type': 'binary',
             'public': True,
             'raw': content.encode('utf8'),
+            'company_id': 1,
         }
         # APPSTOGROW msudo: ref() access control. Create assets in main company.
         main_company = self.env['base'].sudo(bypass_global_rules=True).env.ref('base.main_company')
