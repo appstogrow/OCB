@@ -26,7 +26,8 @@ def _get_model_name_and_res_id(self, field, data):
         else:
             # mail.activity.res_id res_model res_model_id
             model_field = self._fields[field.model_field]
-            comodel_id = _get_value(model_field.related[0], data)
+            position = len(model_field.related) - 2
+            comodel_id = _get_value(model_field.related[position], data)
             comodel_name = self.env["ir.model"].browse(comodel_id).model
         res_id = _get_value(field.name, data)
     elif field.type == 'reference':
