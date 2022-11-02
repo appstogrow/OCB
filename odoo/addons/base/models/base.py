@@ -14,14 +14,20 @@ FIELD_NAME_TO_GET_COMPANY = {
     'website.menu': 'website_id',
 }
 
-def _get_model_name_and_res_id(field, data):
+def _get_model_name_and_res_id(self, field, data):
     if not _get_value(field.name, data):
         comodel_name = res_id = None
     elif field.type == 'many2one':
         comodel_name = field.comodel_name
         res_id = _get_value(field.name, data)
     elif field.type == 'many2one_reference':
-        comodel_name = _get_value(field.model_field, data)
+        if field.model_field in data.keys():
+            comodel_name = _get_value(field.model_field, data)
+        else:
+            # mail.activity.res_id res_model res_model_id
+            model_field = self._fields[field.model_field]
+            comodel_id = _get_value(model_field.related[0], data)
+            comodel_name = self.env["ir.model"].browse(comodel_id).model
         res_id = _get_value(field.name, data)
     elif field.type == 'reference':
         comodel_name, res_id = _get_value(field.name, data).split(',')
@@ -88,7 +94,7 @@ class Base(models.AbstractModel):
             return self.env.company
 
         field = self._fields[field_name]
-        [(comodel_name, res_id)] = _get_model_name_and_res_id(field, record_or_values)
+        [(comodel_name, res_id)] = _get_model_name_and_res_id(self, field, record_or_values)
         if res_id:
             related_record = self.env[comodel_name].browse(res_id)
             return related_record.company_id
@@ -103,7 +109,7 @@ class Base(models.AbstractModel):
             for (key, value) in vals_dict.items():
                 field = self._fields[key]
                 if field.type in ('many2one', 'many2one_reference', 'reference', 'char', 'one2many', 'many2many'):
-                    model_name_res_id = _get_model_name_and_res_id(field, vals_dict)
+                    model_name_res_id = _get_model_name_and_res_id(self, field, vals_dict)
                     for model_name, res_id in model_name_res_id:
                         if model_name and res_id and model_name not in model_exceptions:
                             # access_control().field will give AccessError if the user cannot read the record.
