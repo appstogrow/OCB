@@ -275,7 +275,7 @@ class Website(models.Model):
             <div id="wrap" class="oe_structure oe_empty"/>
             </t>
         </t>''' % (self.id)
-        standard_homepage.with_context(website_id=self.id).arch_db = new_homepage_view
+        standard_homepage.with_context(bypass_global_rules=False).sudo().with_context(website_id=self.id).arch_db = new_homepage_view
 
         homepage_page = Page.search([
             ('website_id', '=', self.id),
