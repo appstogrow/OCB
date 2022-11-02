@@ -10,6 +10,7 @@ class ResCompany(models.Model):
     @api.model
     def create(self, vals):
         new_company = super(ResCompany, self).create(vals)
+        self = self.with_company(new_company)
         ProductPricelist = self.env['product.pricelist']
         pricelist = ProductPricelist.search([('currency_id', '=', new_company.currency_id.id), ('company_id', '=', False)], limit=1)
         if not pricelist:
