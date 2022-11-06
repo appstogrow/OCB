@@ -156,10 +156,7 @@ class Base(models.AbstractModel):
     """
 
     def record_company(self):
-        try:
-            self = self.sudo(bypass_global_rules=True)
-        except:
-            self = self.sudo()
+        self = self.sudo_bypass_global_rules()
         try:
             company = self.mapped('company_id')
         except:
@@ -171,3 +168,9 @@ class Base(models.AbstractModel):
     def with_record_company(self):
         company = self.record_company()
         return self.with_company(company) if company else self
+
+    def sudo_bypass_global_rules(self):
+        try:
+            return self.sudo(bypass_global_rules=True)
+        except:
+            return self.sudo()
