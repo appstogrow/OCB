@@ -11,6 +11,7 @@ FIELD_NAME_TO_GET_COMPANY = {
     'ir.default': 'user_id',
     'ir.model.data': 'res_id',
     'ir.property': 'res_id',
+    "mail.activity": "res_id",
     'website.menu': 'website_id',
 }
 
@@ -21,14 +22,17 @@ def _get_model_name_and_res_id(self, field, data):
         comodel_name = field.comodel_name
         res_id = _get_value(field.name, data)
     elif field.type == 'many2one_reference':
-        if field.model_field in data.keys():
-            comodel_name = _get_value(field.model_field, data)
-        else:
-            # mail.activity.res_id res_model res_model_id
-            model_field = self._fields[field.model_field]
-            position = len(model_field.related) - 2
-            comodel_id = _get_value(model_field.related[position], data)
-            comodel_name = self.env["ir.model"].browse(comodel_id).model
+        # try:
+        comodel_name = _get_value(field.model_field, data)
+        # except:
+        #     # I thought mail.activity.res_id is connected with res_model_id instead of res_model
+        #     # Now mail.activity is added to FIELD_NAME_TO_GET_COMPANY, did that make a difference?
+        #     model_field = self._fields[field.model_field]
+        #     position = len(model_field.related) - 2
+        #     x = model_field.related[position]
+        #     # [:position] ?
+        #     comodel_id = _get_value(model_field.related[position], data)
+        #     comodel_name = self.env["ir.model"].browse(comodel_id).model
         res_id = _get_value(field.name, data)
     elif field.type == 'reference':
         comodel_name, res_id = _get_value(field.name, data).split(',')
