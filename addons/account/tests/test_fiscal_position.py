@@ -13,6 +13,7 @@ class TestFiscalPosition(common.SavepointCase):
     @classmethod
     def setUpClass(cls):
         super(TestFiscalPosition, cls).setUpClass()
+
         cls.fp = cls.env['account.fiscal.position']
 
         # reset any existing FP
@@ -25,7 +26,7 @@ class TestFiscalPosition(common.SavepointCase):
         cls.eu = cls.env.ref('base.europe')
         cls.nl = cls.env.ref('base.nl')
         cls.us = cls.env.ref('base.us')
-        cls.state_fr = cls.env['res.country.state'].create(dict(
+        cls.state_fr = cls.root_env['res.country.state'].create(dict(
                                            name="State",
                                            code="ST",
                                            country_id=fr.id))
@@ -105,7 +106,7 @@ class TestFiscalPosition(common.SavepointCase):
         assert_fp(ben, self.be_nat, "BE-NAT should match before EU-INTRA due to lower sequence")
 
         # Remove BE from EU group, now BE-NAT should be the fallback match before the wildcard WORLD
-        self.be.write({'country_group_ids': [(3, self.eu.id)]})
+        self.be.with_env(self.root_env).write({'country_group_ids': [(3, self.eu.id)]})
         self.assertTrue(jc.vat) # VAT set
         assert_fp(jc, self.be_nat, "BE-NAT should match as fallback even w/o VAT match")
 

@@ -631,8 +631,8 @@ class SingleTransactionCase(BaseCase):
         cls.cr = cls.registry.cursor()
         cls.addClassCleanup(cls.cr.close)
 
-        cls.env = api.Environment(cls.cr, odoo.SUPERUSER_ID, {}, su=True)
-        test_user = cls.env.ref("multicompany_test.test_user")
+        cls.root_env = api.Environment(cls.cr, odoo.SUPERUSER_ID, {}, su=True)
+        test_user = cls.root_env.ref("multicompany_test.test_user")
         cls.env = api.Environment(cls.cr, test_user.id, {}, su=True)
         cls.addClassCleanup(cls.env.reset)
 

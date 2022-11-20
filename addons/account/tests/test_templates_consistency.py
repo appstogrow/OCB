@@ -13,8 +13,12 @@ class AccountingTestTemplConsistency(TransactionCase):
         :param model_to: The compared model.
         :param exceptions: Not copied model's fields.
         '''
+        # APPSTOGROW is forcing company_id on every model, so testing company_id is not necessary.
+        # If company_id is 'related' on model_to, but not on model_from,
+        # the exception is necessary so the test will pass.
+        exceptions.append('company_id')
 
-        def get_fields(model, extra_domain=None):
+        def get_fields(model, extra_domain=[]):
             # Retrieve fields to compare
             domain = [('model', '=', model), ('state', '=', 'base'), ('related', '=', False),
                       ('compute', '=', False), ('store', '=', True)]
