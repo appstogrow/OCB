@@ -3,6 +3,7 @@
 
 import psycopg2
 
+from odoo import SUPERUSER_ID, api
 from odoo.addons.base.tests.common import SavepointCaseWithUserDemo
 from odoo.fields import Date
 from odoo.models import BaseModel
@@ -198,6 +199,9 @@ class TestExpression(SavepointCaseWithUserDemo):
 
     @mute_logger('odoo.models.unlink')
     def test_10_hierarchy_access(self):
+        # Use SUPERUSER; test user cannot change security rules.
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
+
         Partner = self.env['res.partner'].with_user(self.user_demo)
         top = Partner.create({'name': 'Top'})
         med = Partner.create({'name': 'Medium', 'parent_id': top.id})
@@ -311,10 +315,12 @@ class TestExpression(SavepointCaseWithUserDemo):
         self.assertFalse(partners)
 
         # create new company with partners, and partners with no company
+        self.env.cr.execute("DELETE from ir_rule;")
         company2 = self.env['res.company'].create({'name': 'Acme 2'})
         for i in range(4):
             Partner.create({'name': 'P of Acme %s' % i, 'company_id': company2.id})
-            Partner.create({'name': 'P of All %s' % i, 'company_id': False})
+            p = Partner.create({'name': 'P of All %s' % i, 'company_id': False})
+            p.env.cr.execute("UPDATE res_partner SET company_id = null WHERE id = {};".format(p.id))
 
         # check if many2one works with negative empty list
         all_partners = Partner.search([])
@@ -554,7 +560,9 @@ class TestExpression(SavepointCaseWithUserDemo):
         self.assertEqual(set(all_ids) - set([p1,p2]), set(res.ids), "o2m NOT IN matches none on the right side")
 
     def test_15_equivalent_one2many_2(self):
-        Currency = self.env['res.currency']
+        # Use SUPERUSER for currency; test user cannot create currency.
+        superuser_env = api.Environment(self.cr, SUPERUSER_ID, {})
+        Currency = superuser_env['res.currency']
         CurrencyRate = self.env['res.currency.rate']
 
         CurrencyRate.create([
@@ -786,6 +794,8 @@ class TestExpression(SavepointCaseWithUserDemo):
 
     def test_lp1071710(self):
         """ Check that we can exclude translated fields (bug lp:1071710) """
+        # Use SUPERUSER; test user cannot activate language
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
         # first install french language
         self.env['res.lang']._activate_lang('fr_FR')
         self.env['res.partner'].search([('name', '=', 'Pepper Street')]).country_id = self.env.ref('base.be')
@@ -1066,6 +1076,10 @@ class TestAutoJoin(TransactionCase):
 
 
 class TestQueries(TransactionCase):
+    def setUp(self):
+        super().setUp()
+        # Use SUPERUSER; assertQueries fails for test user
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
 
     def test_logic(self):
         Model = self.env['res.partner']
@@ -1178,6 +1192,9 @@ class TestQueries(TransactionCase):
 class TestMany2one(TransactionCase):
     def setUp(self):
         super().setUp()
+        # Use SUPERUSER; assertQueries fails for test user
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
+
         self.Partner = self.env['res.partner'].with_context(active_test=False)
         self.User = self.env['res.users'].with_context(active_test=False)
         self.company = self.env['res.company'].browse(1)
@@ -1396,6 +1413,9 @@ class TestMany2one(TransactionCase):
 class TestOne2many(TransactionCase):
     def setUp(self):
         super().setUp()
+        # Use SUPERUSER; assertQueries fails for test user
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
+
         self.Partner = self.env['res.partner'].with_context(active_test=False)
         self.partner = self.Partner.create({
             'name': 'Foo',
@@ -1612,6 +1632,9 @@ class TestOne2many(TransactionCase):
 class TestMany2many(TransactionCase):
     def setUp(self):
         super().setUp()
+        # Use SUPERUSER; assertQueries fails for test user
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
+
         self.User = self.env['res.users'].with_context(active_test=False)
         self.company = self.env['res.company'].browse(1)
 

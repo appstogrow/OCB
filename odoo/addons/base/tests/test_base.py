@@ -3,7 +3,7 @@
 
 import ast
 
-from odoo import SUPERUSER_ID
+from odoo import SUPERUSER_ID, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase, BaseCase
 from odoo.tools import mute_logger
@@ -626,6 +626,11 @@ class TestParentStore(TransactionCase):
 
 
 class TestGroups(TransactionCase):
+
+    def setUp(self):
+        super().setUp()
+        # Use SUPERUSER; test user cannot edit security.
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
 
     def test_res_groups_fullname_search(self):
         all_groups = self.env['res.groups'].search([])

@@ -3,6 +3,7 @@
 
 from lxml import etree
 
+from odoo import SUPERUSER_ID, api
 from odoo.exceptions import AccessError
 from odoo.addons.base.tests.common import TransactionCaseWithUserDemo
 from odoo.tests.common import TransactionCase
@@ -16,6 +17,8 @@ class TestACL(TransactionCaseWithUserDemo):
 
     def setUp(self):
         super(TestACL, self).setUp()
+        # Use SUPERUSER; test user cannot edit security.
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
         self.erp_system_group = self.env.ref(GROUP_SYSTEM)
 
     def _set_field_groups(self, model, field_name, groups):
@@ -85,7 +88,7 @@ class TestACL(TransactionCaseWithUserDemo):
     @mute_logger('odoo.models')
     def test_field_crud_restriction(self):
         "Read/Write RPC access to restricted field should be forbidden"
-        partner = self.env['res.partner'].browse(1).with_user(self.user_demo)
+        partner = self.env.ref("base.main_company").partner_id.with_user(self.user_demo)
 
         # Verify the test environment first
         has_group_system = self.user_demo.has_group(GROUP_SYSTEM)
@@ -169,6 +172,11 @@ class TestACL(TransactionCaseWithUserDemo):
 
 
 class TestIrRule(TransactionCaseWithUserDemo):
+
+    def setUp(self):
+        super().setUp()
+        # Use SUPERUSER; test user cannot edit security.
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
 
     def test_ir_rule(self):
         model_res_partner = self.env.ref('base.model_res_partner')

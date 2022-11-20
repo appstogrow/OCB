@@ -192,6 +192,9 @@ class Company(models.Model):
 
     @api.model
     def create(self, vals):
+        # APPSTOGROW - THIS IS FOR RUNNING TESTS
+        self = self.sudo_bypass_global_rules()
+
         if not vals.get('favicon'):
             vals['favicon'] = self._get_default_favicon()
         if not vals.get('name') or vals.get('partner_id'):
@@ -220,6 +223,10 @@ class Company(models.Model):
             currency = self.env['res.currency'].browse(vals['currency_id'])
             if not currency.active:
                 currency.write({'active': True})
+
+        # APPSTOGROW - THIS IS FOR RUNNING TESTS
+        company.sudo().partner_id.write({'company_id': company.id})
+
         return company
 
     def write(self, values):

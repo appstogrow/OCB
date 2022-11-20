@@ -807,8 +807,4 @@ def convert_xml_import(cr, module, xmlfile, idref=None, mode='init', noupdate=Fa
         context = dict(obj.env.context)
         context.update({'bypass_global_rules': True})
         obj.env.context = frozendict(context)
-    if kind == 'demo':
-        company = obj.env['res.company'].browse(2)
-        obj.env.company = company
-        obj.env.companies = company
     obj.parse(doc.getroot())

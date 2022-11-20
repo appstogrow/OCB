@@ -1,6 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import sys
 
+from odoo import SUPERUSER_ID, api
 from odoo.tools import cloc
 from odoo.tests import TransactionCase, tagged
 
@@ -121,6 +122,9 @@ for rec in records:
             Check that we count custom fields with no module or studio not auto generated
             Having an xml_id but no existing module is consider as not belonging to a module
         """
+        # Use SUPERUSER; test user cannot create field.
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
+
         f1 = self.create_field('x_invoice_count')
         self.create_xml_id('studio_customization', 'invoice_count', f1)
         cl = cloc.Cloc()
@@ -154,6 +158,9 @@ for rec in records:
         self.assertEqual(cl.code.get('odoo/studio', 0), 2, 'SA with several xml_id should be counted only once')
 
     def test_cloc_exclude_xml_id(self):
+        # Use SUPERUSER; test user cannot create field.
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
+
         sa = self.create_server_action("Test double xml_id")
         self.create_xml_id("__cloc_exclude__", "sa_first", sa)
         self.create_xml_id("__upgrade__", "sa_second", sa)
@@ -169,6 +176,9 @@ for rec in records:
         self.assertEqual(cl.code.get('odoo/studio', 0), 0, 'Should not count Field with cloc_exclude xml_id')
 
     def test_field_no_xml_id(self):
+        # Use SUPERUSER; test user cannot create fields.
+        self.env = api.Environment(self.cr, SUPERUSER_ID, {})
+
         self.env['ir.model.fields'].create({
             'name': "x_no_xml_id",
             'field_description': "no_xml_id",

@@ -56,8 +56,6 @@ except ImportError:
     websocket = None
 
 
-TESTUSER_ID = 2
-
 _logger = logging.getLogger(__name__)
 
 # The odoo library is supposed already configured.
@@ -599,7 +597,9 @@ class TransactionCase(BaseCase):
         self.addCleanup(self.cr.close)
 
         #: :class:`~odoo.api.Environment` for the current test case
-        self.env = api.Environment(self.cr, TESTUSER_ID, {}, su=True)
+        self.env = api.Environment(self.cr, odoo.SUPERUSER_ID, {}, su=True)
+        test_user = self.env.ref("multicompany_test.test_user")
+        self.env = api.Environment(self.cr, test_user.id, {}, su=True)
         self.addCleanup(self.env.reset)
 
         self.patch(type(self.env['res.partner']), '_get_gravatar_image', lambda *a: False)
@@ -631,7 +631,9 @@ class SingleTransactionCase(BaseCase):
         cls.cr = cls.registry.cursor()
         cls.addClassCleanup(cls.cr.close)
 
-        cls.env = api.Environment(cls.cr, TESTUSER_ID, {}, su=True)
+        cls.env = api.Environment(cls.cr, odoo.SUPERUSER_ID, {}, su=True)
+        test_user = cls.env.ref("multicompany_test.test_user")
+        cls.env = api.Environment(cls.cr, test_user.id, {}, su=True)
         cls.addClassCleanup(cls.env.reset)
 
     def setUp(self):
