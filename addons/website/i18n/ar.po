@@ -1041,6 +1041,16 @@ msgid "A Chart Title"
 msgstr "عنوان المخطط البياني "
 
 #. module: website
+#. openerp-web
+#: code:addons/website/static/src/js/editor/snippets.options.js:0
+#, python-format
+msgid ""
+"A Google Map error occurred. Make sure to read the key configuration popup "
+"carefully."
+msgstr ""
+"حدث خطأ ما في خرائط Google. تأكد من قراءة مفتاح التهيئة المنبثق بتأنٍ. "
+
+#. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_text_image
 msgid "A Section Subtitle"
 msgstr "عنوان فرعي للقسم"
@@ -3231,6 +3241,14 @@ msgstr "فعّل خاصية الفوترة في مشروع Google "
 
 #. module: website
 #. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Enable the right google map APIs in your google account"
+msgstr ""
+"قم بتمكين الواجهات البرمجية الصحيحة لخرائط Google في حساب Google الخاص بك "
+
+#. module: website
+#. openerp-web
 #: code:addons/website/static/src/js/editor/snippets.editor.js:0
 #, python-format
 msgid "Enter an API Key"
@@ -3832,6 +3850,11 @@ msgid ""
 "will be possible only up to mid 2023. After that, those services won't work "
 "anymore, at all."
 msgstr ""
+"تخلص Google من الواجهات البرمجية لكل من \"Universal Analytics\" و \"تسجيل "
+"دخول Google\". هذا يعني أن الحسابات والمفاتيح المنشأة قبل 2020 فقط هي التي "
+"سيكون من الممكن دمج لوحة بيانات التحليلات الخاصة بها في أودو (أو أي موقع "
+"إلكتروني آخر). سيكون ذلك ممكناً فقط حتى منتصف عام 2023، وبعد ذلك، لن تعمل "
+"تلك الخوادم على الإطلاق بعد الآن. "
 
 #. module: website
 #: model:ir.model.fields,help:website.field_res_config_settings__google_search_console
@@ -5040,6 +5063,31 @@ msgid "Main actions"
 msgstr "الإجراءات الرئيسية "
 
 #. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Make sure billing is enabled"
+msgstr "تأكد من أن الفوترة مفعّلة "
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid ""
+"Make sure to wait if errors keep being shown: sometimes enabling an API "
+"allows to use it immediately but Google keeps triggering errors for a while"
+msgstr ""
+"انتظر قليلاً إذا استمرت الأخطاء بالظهور: أحياناً، يسمح تمكين الواجهة "
+"البرمجية باستخدامه مباشرة ولكن يستمر Google بتشغيل الأخطاء لفترة  "
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Make sure your settings are properly configured:"
+msgstr "تأكد من أن إعداداتك مهيأة بشكل صحيح: "
+
+#. module: website
 #: model_terms:ir.ui.view,arch_db:website.user_navbar
 msgid "Manage Pages"
 msgstr "إدارة الصفحات"
@@ -5058,6 +5106,20 @@ msgstr "إدارة صفحات موقعك"
 #: model_terms:ir.ui.view,arch_db:website.one_page_line
 msgid "Manage this page"
 msgstr "إدارة هذه الصفحة"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Maps JavaScript API"
+msgstr "الواجهة البرمجية للخرائط على JavaScript "
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Maps Static API"
+msgstr "الواجهة البرمجية للخرائط الثابتة "
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_google_map_options
@@ -5167,6 +5229,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website.s_popup_options
 msgid "Middle"
 msgstr "الوسط"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/js/editor/snippets.options.js:0
+#, python-format
+msgid "Min-Height"
+msgstr "الارتفاع الأدنى "
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_blockquote_options
@@ -5363,6 +5432,8 @@ msgid ""
 "New Google Analytics accounts and keys are now using Google Analytics 4 "
 "which, for now, can't be integrated/embed in external websites."
 msgstr ""
+"تستخدم حسابات تحليلات Google الجديدة والمفاتيح الآن تحليلات Google 4، والذي "
+"لا يمكن دمجه/تضمينه في المواقع الإلكترونية الخارجية في الوقت الراهن. "
 
 #. module: website
 #. openerp-web
@@ -5896,6 +5967,13 @@ msgstr "حبة "
 #: model_terms:ir.ui.view,arch_db:website.snippet_options
 msgid "Pills"
 msgstr "حبوب "
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Places API"
+msgstr "الواجهة البرمجية للأماكن "
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_countdown_options
@@ -6626,6 +6704,13 @@ msgstr "رابط منفصل"
 #: model:ir.model.fields,field_description:website.field_website_rewrite__sequence
 msgid "Sequence"
 msgstr "التسلسل "
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Serve font from Google servers"
+msgstr "تقديم الخط من خوادم Google "
 
 #. module: website
 #: model:ir.model,name:website.model_ir_actions_server
@@ -7416,6 +7501,13 @@ msgstr ""
 "                                                                         مفيد عندما تقوم بإعادة تشغيل عرض به خلل. "
 
 #. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "This font is hosted and served to your visitors by Google servers"
+msgstr "هذا الخط مستضاف ويتم تقديمه إلى زائريك بواسطة خوادم Google "
+
+#. module: website
 #: model_terms:ir.ui.view,arch_db:website.bs_debug_view
 #: model_terms:website.page,arch_db:website.bs_debug_page
 msgid "This is a \""
@@ -7478,6 +7570,8 @@ msgid ""
 "Those accounts should now check their Analytics dashboard in the Google "
 "platform directly."
 msgstr ""
+"يجب أن تتفقد تلك الحسابات لوحات البيانات التحليلية الخاصة بها، مباشرة على "
+"منصة Google. "
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_image_gallery_options
@@ -9416,3 +9510,10 @@ msgstr "⌙ الفيديو "
 #: model_terms:ir.ui.view,arch_db:website.snippet_options
 msgid "⌙ Width"
 msgstr "⌙ العرض "
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/js/editor/snippets.options.js:0
+#, python-format
+msgid "└ Height"
+msgstr "└ الارتفاع "

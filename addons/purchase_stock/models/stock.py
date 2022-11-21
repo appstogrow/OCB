@@ -19,7 +19,7 @@ class StockMove(models.Model):
     purchase_line_id = fields.Many2one('purchase.order.line',
         'Purchase Order Line', ondelete='set null', index=True, readonly=True)
     created_purchase_line_id = fields.Many2one('purchase.order.line',
-        'Created Purchase Order Line', ondelete='set null', readonly=True, copy=False)
+        'Created Purchase Order Line', ondelete='set null', readonly=True, copy=False, index=True)
 
     @api.model
     def _prepare_merge_moves_distinct_fields(self):
@@ -134,6 +134,15 @@ class StockMove(models.Model):
             raise UserError(
                 _('Odoo is not able to generate the anglo saxon entries. The total valuation of %s is zero.') % related_aml.product_id.display_name)
         return valuation_price_unit_total, valuation_total_qty
+
+    def _is_purchase_return(self):
+        self.ensure_one()
+        return self.location_dest_id.usage == "supplier" or (
+                self.location_dest_id.usage == "internal"
+                and self.location_id.usage != "supplier"
+                and self.warehouse_id
+                and self.location_dest_id not in self.env["stock.location"].search([("id", "child_of", self.warehouse_id.view_location_id.id)])
+        )
 
 
 class StockWarehouse(models.Model):
