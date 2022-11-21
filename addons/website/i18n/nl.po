@@ -12,9 +12,9 @@
 # Cas Vissers <casvissers@brahoo.nl>, 2020
 # Odoo Experts Consultants <consultants@odooexperts.nl>, 2020
 # Yenthe Van Ginneken <yenthespam@gmail.com>, 2022
-# Erwin van der Ploeg <erwin@odooexperts.nl>, 2022
 # Martin Trigaux, 2022
 # Lukas Van Cauter <cvl@odoo.com>, 2022
+# Erwin van der Ploeg <erwin@odooexperts.nl>, 2022
 # 
 msgid ""
 msgstr ""
@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-07 14:40+0000\n"
 "PO-Revision-Date: 2020-09-07 08:20+0000\n"
-"Last-Translator: Lukas Van Cauter <cvl@odoo.com>, 2022\n"
+"Last-Translator: Erwin van der Ploeg <erwin@odooexperts.nl>, 2022\n"
 "Language-Team: Dutch (https://www.transifex.com/odoo/teams/41243/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1036,6 +1036,17 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website.s_chart
 msgid "A Chart Title"
 msgstr "Een grafiektitel"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/js/editor/snippets.options.js:0
+#, python-format
+msgid ""
+"A Google Map error occurred. Make sure to read the key configuration popup "
+"carefully."
+msgstr ""
+"Er is een Google Map-fout opgetreden. Zorg ervoor dat je de pop-up voor de "
+"sleutelconfiguratie zorgvuldig leest."
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_text_image
@@ -3247,6 +3258,13 @@ msgstr "Facturering op uw Google-project mogelijk maken"
 
 #. module: website
 #. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Enable the right google map APIs in your google account"
+msgstr "Schakel de juiste Google Map API's in je Google-account in"
+
+#. module: website
+#. openerp-web
 #: code:addons/website/static/src/js/editor/snippets.editor.js:0
 #, python-format
 msgid "Enter an API Key"
@@ -5075,6 +5093,32 @@ msgid "Main actions"
 msgstr "Belangrijkste acties"
 
 #. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Make sure billing is enabled"
+msgstr "Zorg ervoor dat facturering is ingeschakeld"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid ""
+"Make sure to wait if errors keep being shown: sometimes enabling an API "
+"allows to use it immediately but Google keeps triggering errors for a while"
+msgstr ""
+"Zorg ervoor dat je wacht als er fouten blijven worden weergegeven: soms kun "
+"je een API inschakelen om deze onmiddellijk te gebruiken, maar Google blijft"
+" een tijdje fouten genereren"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Make sure your settings are properly configured:"
+msgstr "Zorg ervoor dat uw instellingen correct zijn geconfigureerd:"
+
+#. module: website
 #: model_terms:ir.ui.view,arch_db:website.user_navbar
 msgid "Manage Pages"
 msgstr "Beheer pagina's"
@@ -5093,6 +5137,20 @@ msgstr "Beheer uw website pagina's"
 #: model_terms:ir.ui.view,arch_db:website.one_page_line
 msgid "Manage this page"
 msgstr "Beheer deze pagina"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Maps JavaScript API"
+msgstr "Maps JavaScript API"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Maps Static API"
+msgstr "Maps Static API"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_google_map_options
@@ -5202,6 +5260,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website.s_popup_options
 msgid "Middle"
 msgstr "Midden"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/js/editor/snippets.options.js:0
+#, python-format
+msgid "Min-Height"
+msgstr "Min-Hoogte"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_blockquote_options
@@ -5933,6 +5998,13 @@ msgid "Pills"
 msgstr "Pillen"
 
 #. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Places API"
+msgstr "Places API"
+
+#. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_countdown_options
 msgid "Plain"
 msgstr "Kaal"
@@ -6661,6 +6733,13 @@ msgstr "Aparte link"
 #: model:ir.model.fields,field_description:website.field_website_rewrite__sequence
 msgid "Sequence"
 msgstr "Reeks"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Serve font from Google servers"
+msgstr "Lever lettertype vanaf Google-servers"
 
 #. module: website
 #: model:ir.model,name:website.model_ir_actions_server
@@ -7458,6 +7537,15 @@ msgid ""
 msgstr ""
 "Dit veld bewaard de huidige `arch_db` voordat erop geschreven wordt.\n"
 "Handig om (zachte) resets van een kapotte weergave te doen."
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "This font is hosted and served to your visitors by Google servers"
+msgstr ""
+"Dit lettertype wordt door Google-servers gehost en aan je bezoekers "
+"aangeboden"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.bs_debug_view
@@ -9479,3 +9567,10 @@ msgstr "⌙ Video"
 #: model_terms:ir.ui.view,arch_db:website.snippet_options
 msgid "⌙ Width"
 msgstr "⌙ Breedte"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/js/editor/snippets.options.js:0
+#, python-format
+msgid "└ Height"
+msgstr "└ Hoogte"

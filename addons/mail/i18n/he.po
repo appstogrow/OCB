@@ -1081,7 +1081,7 @@ msgstr "שיחה"
 #. module: mail
 #: model:ir.model.fields,field_description:mail.field_mail_activity__can_write
 msgid "Can Write"
-msgstr ""
+msgstr "ניתן לכתיבה"
 
 #. module: mail
 #: code:addons/mail/models/mail_notification.py:0
@@ -1139,7 +1139,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:mail.field_mail_mail__canned_response_ids
 #: model:ir.model.fields,field_description:mail.field_mail_message__canned_response_ids
 msgid "Canned Responses"
-msgstr ""
+msgstr "קיצורי דרך לתגובות"
 
 #. module: mail
 #: model:ir.model.fields,help:mail.field_mail_mail__email_cc
@@ -3046,7 +3046,7 @@ msgstr "אנשים שהוזמנו בלבד"
 #. module: mail
 #: model:ir.model.fields,field_description:mail.field_mail_followers__is_active
 msgid "Is Active"
-msgstr ""
+msgstr "האם פעיל"
 
 #. module: mail
 #: model_terms:ir.ui.view,arch_db:mail.mail_moderation_view_search
@@ -4171,7 +4171,7 @@ msgstr ""
 #: code:addons/mail/static/src/components/message_list/message_list.xml:0
 #, python-format
 msgid "No starred messages"
-msgstr ""
+msgstr "אין הודעות שסומנו"
 
 #. module: mail
 #: model:ir.model.fields,field_description:mail.field_mail_compose_message__no_auto_thread
@@ -5304,7 +5304,7 @@ msgstr "תזמן פעילות"
 #: code:addons/mail/static/src/xml/web_kanban_activity.xml:0
 #, python-format
 msgid "Schedule activities to help you get things done."
-msgstr ""
+msgstr "קבע פעילויות שיעזרו לך לגרום לדברים לעבוד"
 
 #. module: mail
 #. openerp-web
@@ -5739,7 +5739,7 @@ msgstr ""
 #. module: mail
 #: model:ir.model.fields,field_description:mail.field_mail_shortcode__substitution
 msgid "Substitution"
-msgstr ""
+msgstr "תחליף"
 
 #. module: mail
 #: model:ir.model.fields,field_description:mail.field_mail_compose_message__subtype_id
@@ -5975,7 +5975,7 @@ msgstr ""
 #: code:addons/mail/static/src/components/message_list/message_list.xml:0
 #, python-format
 msgid "There are no messages in this conversation."
-msgstr ""
+msgstr "אין הודעות בשיחה הזו."
 
 #. module: mail
 #: model_terms:ir.ui.view,arch_db:mail.message_origin_link
