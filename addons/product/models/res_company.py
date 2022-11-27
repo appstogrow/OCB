@@ -36,7 +36,7 @@ class ResCompany(models.Model):
         main_pricelist = self.env['ir.property']._get_default_property(
             'property_product_pricelist', 'res.partner',
         )
-        if currency_id and main_pricelist:
+        if currency_id and type(main_pricelist) is type(self.env["product.pricelist"]):
             nb_companies = self.search_count([])
             for company in self:
                 existing_pricelist = ProductPricelist.search(
