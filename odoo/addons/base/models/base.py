@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from . import ir_model
 
 """
@@ -132,11 +132,14 @@ class Base(models.AbstractModel):
         # access_ok will always be True in superuser mode.
         access_ok = self.check_access_rights('read', raise_exception=raise_if_access_error)
 
-        try:
-            self.check_access_rule('read')
+        if not self.env.user:
             rule_ok = True
-        except:
-            rule_ok = False
+        else:
+            try:
+                self.check_access_rule('read')
+                rule_ok = True
+            except AccessError:
+                rule_ok = False
 
         if access_ok and rule_ok:
             return self
