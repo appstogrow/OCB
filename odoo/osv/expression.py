@@ -429,7 +429,7 @@ class expression(object):
             :attr query: Query object holding the final result
         """
         self._unaccent = get_unaccent_wrapper(model._cr)
-        self.root_model = model
+        self.root_model = model.sudo_bypass_global_rules()
         self.root_alias = alias or model._table
 
         # normalize and prepare the expression for parsing
