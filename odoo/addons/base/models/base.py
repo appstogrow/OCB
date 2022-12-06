@@ -22,17 +22,15 @@ def _get_model_name_and_res_id(self, field, data):
         comodel_name = field.comodel_name
         res_id = _get_value(field.name, data)
     elif field.type == 'many2one_reference':
-        # try:
-        comodel_name = _get_value(field.model_field, data)
-        # except:
-        #     # I thought mail.activity.res_id is connected with res_model_id instead of res_model
-        #     # Now mail.activity is added to FIELD_NAME_TO_GET_COMPANY, did that make a difference?
-        #     model_field = self._fields[field.model_field]
-        #     position = len(model_field.related) - 2
-        #     x = model_field.related[position]
-        #     # [:position] ?
-        #     comodel_id = _get_value(model_field.related[position], data)
-        #     comodel_name = self.env["ir.model"].browse(comodel_id).model
+        try:
+            comodel_name = _get_value(field.model_field, data)
+        except:
+            # mail.activity action_close_dialog():
+            # mail.activity.res_id is connected with res_model_id instead of res_model
+            model_field = self._fields[field.model_field]
+            position = len(model_field.related) - 2
+            comodel_id = _get_value(model_field.related[position], data)
+            comodel_name = self.env["ir.model"].browse(comodel_id).model
         res_id = _get_value(field.name, data)
     elif field.type == 'reference':
         comodel_name, res_id = _get_value(field.name, data).split(',')
@@ -63,8 +61,6 @@ def _get_value(field_name, record_or_dict):
 
 
 class Base(models.AbstractModel):
-    _inherit = 'base'
-
     """
     This code cannot be inside multicompany_base; then it is not active on installing/updating modules.
 
@@ -74,6 +70,18 @@ class Base(models.AbstractModel):
 
         Don't accept FK relations to records which the user cannot browse.
     """
+
+    _inherit = 'base'
+
+    # This field is used by global rules.
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        store=True,
+        index=True,
+        # required=True,
+        default=lambda self: self.env.company,
+    )
 
     def create(self, vals_list):
         for vals_dict in vals_list:
@@ -92,7 +100,6 @@ class Base(models.AbstractModel):
                 vals_dict['company_id'] = self._related_company(vals_dict).id
         return vals_dict
 
-    # Also used in multicompany.security
     def _related_company(self, record_or_values):
         field_name = FIELD_NAME_TO_GET_COMPANY.get(self._name)
         if not field_name:
@@ -146,21 +153,6 @@ class Base(models.AbstractModel):
         else:
             if raise_if_access_error:
                 raise UserError("access_control() failed for this record: {},{}".format(self, id))
-
-    """
-    USE CASES:
-    - MULTICOMPANY CONTROLLER PATCHES
-    - STORED FIELDS COMPUTE ALL
-    When the active company is not the user's default company,
-    controllers may not know the company of a record,
-    and sudo() is necessary to find out.
-    In patches to fix controllers,
-    the methods .record_company() and .with_record_company() are often very useful.
-    Then sudo() is only one place here, not in every controller patch.
-    TODO:
-    Set the active company as env.company in a central place, so controllers will know the company by default?
-    request.httprequest.cookies.get("cids") - The first cid is the active company.
-    """
 
     def record_company(self):
         self = self.sudo_bypass_global_rules()
