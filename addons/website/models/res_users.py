@@ -70,7 +70,8 @@ class ResUsers(models.Model):
         uid = super(ResUsers, cls).authenticate(db, login, password, user_agent_env)
         if uid:
             with cls.pool.cursor() as cr:
-                env = api.Environment(cr, uid, {})
+                # APPSTOGROW: Use the companies from the request
+                env = api.Environment(cr, uid, {'allowed_company_ids': request.env.companies.ids})
                 visitor_sudo = env['website.visitor']._get_visitor_from_request()
                 if visitor_sudo:
                     user_partner = env.user.partner_id
