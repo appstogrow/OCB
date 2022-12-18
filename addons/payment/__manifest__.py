@@ -11,7 +11,7 @@
     'data': [
         'data/account_data.xml',
         'data/payment_icon_data.xml',
-        'data/payment_acquirer_data.xml',
+        'data/payment_acquirer_data_ag.xml',
         'data/payment_cron.xml',
         'views/payment_views.xml',
         'views/account_payment_views.xml',

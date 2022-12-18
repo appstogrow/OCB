@@ -236,9 +236,9 @@
         <function model="stock.inventory" name="_action_start">
             <function eval="[[('state','=','draft'),('id', '=', ref('stock_inventory_chic_0'))]]" model="stock.inventory" name="search"/>
         </function>
-        <function model="stock.inventory" name="action_validate">
+        <!-- <function model="stock.inventory" name="action_validate">
             <function eval="[[('state','=','confirm'),('id', '=', ref('stock_inventory_chic_0'))]]" model="stock.inventory" name="search"/>
-        </function>
+        </function> -->
 
         <!-- Activate Lots options as demo data depends on it -->
         <record id="base.group_user" model="res.groups">
