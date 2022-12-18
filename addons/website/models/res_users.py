@@ -75,7 +75,7 @@ class ResUsers(models.Model):
                 if visitor_sudo:
                     user_partner = env.user.partner_id
                     other_user_visitor_sudo = env['website.visitor'].with_context(active_test=False).sudo().search(
-                        [('partner_id', '=', user_partner.id), ('id', '!=', visitor_sudo.id)],
+                        [('partner_id', '=', user_partner.id), ('id', '!=', visitor_sudo.id), ('company_id', '=', env.company.id)],
                         order='last_connection_datetime DESC',
                     )  # current 13.3 state: 1 result max as unique visitor / partner
                     if other_user_visitor_sudo:
