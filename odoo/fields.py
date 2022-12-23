@@ -1174,6 +1174,7 @@ class Field(MetaField('DummyField', (object,), {})):
 
         try:
             with records.env.protecting(fields, records):
+                records = records.with_record_company()
                 records._compute_field_value(self)
         except Exception:
             for field in fields:
