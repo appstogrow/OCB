@@ -114,7 +114,7 @@ class IrRule(models.Model):
         if mode not in self._MODES:
             raise ValueError('Invalid mode: %r' % (mode,))
 
-        if self._uid == 1 or (self.env.su and self.env.context.get("bypass_global_rules")):
+        if self.env.su and self.env.context.get("bypass_global_rules"):
             return self.browse(())
 
         query = """ SELECT r.id FROM ir_rule r JOIN ir_model m ON (r.model_id=m.id)
