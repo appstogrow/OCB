@@ -1174,7 +1174,10 @@ class Field(MetaField('DummyField', (object,), {})):
 
         try:
             with records.env.protecting(fields, records):
-                records = records.with_record_company()
+                # APPSTOGROW cannot do:
+                # records = records.with_record_company()
+                # user.employee_id should depend on the active company, not the user's company!
+                # TODO: If needed, use records.with_record_company() before calling compute_value()
                 records._compute_field_value(self)
         except Exception:
             for field in fields:
