@@ -1002,6 +1002,7 @@ class MailThread(models.AbstractModel):
                 routes = []
                 for alias in dest_aliases:
                     self = self.with_company(alias.company_id)
+                    alias = alias.with_company(alias.company_id)
                     user_id = self._mail_find_user_for_gateway(email_from, alias=alias).id or self._uid
                     route = (alias.alias_model_id.model, alias.alias_force_thread_id, ast.literal_eval(alias.alias_defaults), user_id, alias)
                     route = self._routing_check_route(message, message_dict, route, raise_exception=True)
