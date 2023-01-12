@@ -2544,7 +2544,11 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         # fails due to ir.default not being ready
         field = self._fields[column_name]
         if field.default:
-            value = field.default(self)
+            # APPSTOGROW
+            # For databases migrating to multicompany with company_id on each model:
+            # - Will _init_column set default company_id = 1 on every record?
+            #   Then multicompany_base hook _set_company_id_where_null will do nothing!
+            value = field.default(self.sudo_bypass_global_rules())
             value = field.convert_to_write(value, self)
             value = field.convert_to_column(value, self)
         else:
