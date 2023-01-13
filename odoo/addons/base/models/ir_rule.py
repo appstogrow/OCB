@@ -254,7 +254,8 @@ class IrRule(models.Model):
         # so it is relatively safe here to include the list of rules and record names.
         rules = self._get_failing(records, mode=operation).sudo()
 
-        records_description = ', '.join(['%s (id=%s)' % (rec.display_name, rec.id) for rec in records[:6].sudo()])
+        # APPSTOGROW: Max privileges are needed to avoid a loop.
+        records_description = ', '.join(['%s (id=%s)' % (rec.display_name, rec.id) for rec in records[:6].sudo_bypass_global_rules()])
         failing_records = _("Records: %s", records_description)
 
         user_description = '%s (id=%s)' % (self.env.user.name, self.env.user.id)
