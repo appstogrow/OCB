@@ -5938,6 +5938,12 @@ Fields:
             The fields and records to recompute have been determined by method
             :meth:`modified`.
         """
+        # APPSTOGROW
+        # Recompute each record with the record's company in the environment.
+        # A new environment will need a new cache.
+        # Therefore reuse the company environment when needed multiple times.
+        # TODO: Test the performance impact of recomputing with company environment.
+        env = {}
         def process(field):
             recs = self.env.records_to_compute(field)
             if not recs:
@@ -5946,10 +5952,23 @@ Fields:
                 # do not force recomputation on new records; those will be
                 # recomputed by accessing the field on the records
                 recs = recs.filtered('id')
-                try:
-                    field.recompute(recs)
-                except MissingError:
-                    existing = recs.exists()
+                # APPSTOGROW
+                # Get the companies of the records.
+                # For each company, get a company environment and recompute the records of that company.
+                recs_bypass = recs.sudo_bypass_global_rules()
+                company_ids = recs_bypass.mapped('company_id').ids
+                for company_id in company_ids:
+                  company = self.env['res.company'].browse(company_id)
+                  if not env.get(company):
+                    env[company] = api.Environment(recs.env.cr, recs.env.uid, {})
+                    env[company].company = company
+                    env[company].companies = company
+                  try:
+                    company_recs_bypass = recs_bypass.filtered(lambda r: r.company_id == company)
+                    company_recs = company_recs_bypass.with_env(env[company])
+                    field.recompute(company_recs)
+                  except MissingError:
+                    existing = company_recs.exists()
                     field.recompute(existing)
                     # mark the field as computed on missing records, otherwise
                     # they remain forever in the todo list, and lead to an
