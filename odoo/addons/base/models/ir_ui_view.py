@@ -1783,7 +1783,8 @@ actual arch.
         self._cr.execute(query, [model])
 
         rec = self.browse(it[0] for it in self._cr.fetchall())
-        return rec.with_context({'load_all_views': True})._check_xml()
+        # APPSTOGROW: Bypass global rules because the query may get views from any company.
+        return rec.sudo_bypass_global_rules().with_context({'load_all_views': True})._check_xml()
 
     @api.model
     def _validate_module_views(self, module):
