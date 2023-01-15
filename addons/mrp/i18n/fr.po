@@ -1700,6 +1700,8 @@ msgstr "Exception(s):"
 msgid ""
 "Existing Serial number (%s). Please correct the serial numbers encoded."
 msgstr ""
+"Numéro de série existant (%s). Veuillez corriger les numéros de série "
+"encodés."
 
 #. module: mrp
 #: code:addons/mrp/models/mrp_production.py:0
@@ -2425,7 +2427,7 @@ msgstr ""
 #. module: mrp
 #: model:res.groups,name:mrp.group_locked_by_default
 msgid "Locked by default"
-msgstr ""
+msgstr "Verrouillé par défaut"
 
 #. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_workcenter_productivity__loss_id
@@ -2501,6 +2503,9 @@ msgid ""
 "Makes confirmed manufacturing orders locked rather than unlocked by default."
 " This only applies to new manufacturing orders, not previously created ones."
 msgstr ""
+"Les ordres de fabrication confirmés sont verrouillés plutôt que "
+"déverrouillés par défaut. Cela ne s'applique qu'aux nouveaux ordres de "
+"fabrication, et non aux ordres créés précédemment."
 
 #. module: mrp
 #: model:res.groups,name:mrp.group_mrp_routings
@@ -2886,6 +2891,17 @@ msgstr ""
 "poste de travail est recommandée."
 
 #. module: mrp
+#: code:addons/mrp/models/product.py:0 code:addons/mrp/models/product.py:0
+#, python-format
+msgid ""
+"Note that product(s): '%s' is/are still linked to active Bill of Materials, "
+"which means that the product can still be used on it/them."
+msgstr ""
+"Notez que le(s) produit(s): '%s' est/sont toujours lié(s) à une nomenclature"
+" active, ce qui signifie que le produit peut toujours être utilisé sur "
+"celui-ci/ceux-ci."
+
+#. module: mrp
 #: model:ir.model.fields,field_description:mrp.field_mrp_bom__message_needaction_counter
 #: model:ir.model.fields,field_description:mrp.field_mrp_production__message_needaction_counter
 #: model:ir.model.fields,field_description:mrp.field_mrp_unbuild__message_needaction_counter
@@ -3246,7 +3262,7 @@ msgstr "Stratifié en plastique"
 #: code:addons/mrp/models/stock_move.py:0
 #, python-format
 msgid "Please delete the Manufacture Order first."
-msgstr ""
+msgstr "Veuillez d'abord supprimer l'ordre de fabrication."
 
 #. module: mrp
 #: model:product.product,name:mrp.product_product_wood_ply
@@ -3889,6 +3905,12 @@ msgid "Sequence stock after manufacturing"
 msgstr "Séquence de stockage après fabrication"
 
 #. module: mrp
+#: code:addons/mrp/models/mrp_production.py:0
+#, python-format
+msgid "Serial number (%s) has already been produced."
+msgstr "Le numéro de série (%s) a déjà été produit."
+
+#. module: mrp
 #: model:ir.model.fields.selection,name:mrp.selection__mrp_routing_workcenter__time_mode__manual
 msgid "Set duration manually"
 msgstr "Fixer la durée manuellement"
@@ -4249,12 +4271,12 @@ msgstr "Texte"
 #: model:ir.model.fields,help:mrp.field_mrp_routing_workcenter__note
 #: model:ir.model.fields,help:mrp.field_mrp_workorder__operation_note
 msgid "Text worksheet description"
-msgstr ""
+msgstr "Description du texte de la feuille de travail"
 
 #. module: mrp
 #: model:ir.model.fields,help:mrp.field_mrp_routing_workcenter__bom_id
 msgid "The Bill of Material this operation is linked to"
-msgstr ""
+msgstr "La nomenclature à laquelle cette opération est associée"
 
 #. module: mrp
 #: code:addons/mrp/models/mrp_bom.py:0 code:addons/mrp/models/mrp_bom.py:0

@@ -262,6 +262,8 @@ msgid ""
 "<br/>\n"
 "                        <span>Score:</span>"
 msgstr ""
+"<br/>\n"
+"                        <span>Score :</span>"
 
 #. module: survey
 #: model:survey.question,description:survey.survey_demo_quiz_p4_q6
@@ -312,6 +314,30 @@ msgid ""
 "</div>\n"
 "            "
 msgstr ""
+"<div style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"        Cher ${object.partner_id.name or 'participant'}<br/><br/>\n"
+"        % if object.survey_id.certification:\n"
+"            Vous avez été invité à passer une nouvelle certification.\n"
+"        % else:\n"
+"            Nous menons un sondage et votre réponse serait apppréciée.\n"
+"        % endif\n"
+"        <div style=\"margin: 16px 0px 16px 0px;\">\n"
+"            <a href=\"${(object.get_start_url()) | safe}\" style=\"background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;\">\n"
+"                % if object.survey_id.certification:\n"
+"                    Démarrer la certification\n"
+"                % else:\n"
+"                    Démarrer le sondage\n"
+"                % endif\n"
+"            </a>\n"
+"        </div>\n"
+"        % if object.deadline:\n"
+"            Veuillez répondre au sondage avant le ${format_date(object.deadline)}.<br/><br/>\n"
+"        % endif\n"
+"        Merci pour votre participation.\n"
+"    </p>\n"
+"</div>\n"
+"            "
 
 #. module: survey
 #: model_terms:ir.ui.view,arch_db:survey.survey_question_form
@@ -660,6 +686,9 @@ msgid ""
 "left py-0 pl-2\"><span class=\"text-primary text-center text-center w-100 "
 "position-relative\">Key</span></span>"
 msgstr ""
+"<span class=\"o_survey_key text-center position-absolute bg-white rounded-"
+"left py-0 pl-2\"><span class=\"text-primary text-center text-center w-100 "
+"position-relative\">Clé</span></span>"
 
 #. module: survey
 #: model_terms:ir.ui.view,arch_db:survey.survey_kanban
@@ -677,6 +706,7 @@ msgid ""
 "<span class=\"text-muted\">The code is found on the screen in front of "
 "you</span>"
 msgstr ""
+"<span class=\"text-muted\">Le code se trouve sur l'écran devant vous</span>"
 
 #. module: survey
 #: model:survey.question,description:survey.survey_demo_quiz_p3_q1
@@ -1163,7 +1193,7 @@ msgstr "Burger Quiz"
 #. module: survey
 #: model_terms:ir.ui.view,arch_db:survey.certification_report_view_classic
 msgid "CERTIFICATE"
-msgstr ""
+msgstr "CERTIFICAT"
 
 #. module: survey
 #: model:survey.question.answer,value:survey.vendor_certification_page_2_question_2_choice_3
@@ -1221,12 +1251,12 @@ msgstr "Certification échouée"
 #: model_terms:ir.ui.view,arch_db:survey.certification_report_view_classic
 #: model_terms:ir.ui.view,arch_db:survey.certification_report_view_modern
 msgid "Certification Seal"
-msgstr ""
+msgstr "Sceau de certification"
 
 #. module: survey
 #: model_terms:ir.ui.view,arch_db:survey.survey_form
 msgid "Certification Template"
-msgstr ""
+msgstr "Modèle de certification"
 
 #. module: survey
 #: model:ir.model.constraint,message:survey.constraint_survey_survey_give_badge_check
@@ -1716,6 +1746,8 @@ msgid ""
 "Display images in addition to answer label. Valid only for simple / multiple"
 " choice questions."
 msgstr ""
+"Affichez des images en plus de l'étiquette de réponse. Valable uniquement "
+"pour les questions à choix simple / multiple."
 
 #. module: survey
 #: model:survey.question,title:survey.vendor_certification_page_1_question_1
@@ -1858,7 +1890,7 @@ msgstr "Classement final"
 #. module: survey
 #: model_terms:ir.ui.view,arch_db:survey.survey_page_statistics_inner
 msgid "Finished surveys"
-msgstr ""
+msgstr "Sondages terminés"
 
 #. module: survey
 #: model:ir.model.fields,field_description:survey.field_survey_survey__message_follower_ids
@@ -2178,6 +2210,8 @@ msgid ""
 "If checked, this question will be displayed only \n"
 "        if the specified conditional answer have been selected in a previous question"
 msgstr ""
+"Si coché, cette question sera affichée uniquement\n"
+"si la réponse conditionnelle spécifiée a été sélectionnée dans une question précédente"
 
 #. module: survey
 #: model:ir.model.fields,help:survey.field_survey_survey__users_can_go_back
@@ -4055,7 +4089,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:survey.certification_report_view_classic
 #: model_terms:ir.ui.view,arch_db:survey.certification_report_view_modern
 msgid "This Certificate is Presented to"
-msgstr ""
+msgstr "Ce certificat est présenté à"
 
 #. module: survey
 #: code:addons/survey/models/survey_question.py:0
@@ -4743,13 +4777,13 @@ msgstr "par ex. enquête de satisfaction"
 #: model_terms:ir.ui.view,arch_db:survey.certification_report_view_classic
 #: model_terms:ir.ui.view,arch_db:survey.certification_report_view_modern
 msgid "for graduating"
-msgstr ""
+msgstr "pour l'obtention du diplôme"
 
 #. module: survey
 #: model_terms:ir.ui.view,arch_db:survey.certification_report_view_classic
 #: model_terms:ir.ui.view,arch_db:survey.certification_report_view_modern
 msgid "is proud to award this certificate to"
-msgstr ""
+msgstr "est fier d'accorder ce certificat à"
 
 #. module: survey
 #: model_terms:ir.ui.view,arch_db:survey.survey_auth_required

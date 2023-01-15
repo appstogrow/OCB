@@ -1408,6 +1408,30 @@ class AccountMove(models.Model):
         'line_ids.payment_id.state',
         'line_ids.full_reconcile_id')
     def _compute_amount(self):
+        in_invoices = self.filtered(lambda m: m.move_type == 'in_invoice')
+        out_invoices = self.filtered(lambda m: m.move_type == 'out_invoice')
+        others = self.filtered(lambda m: m.move_type not in ('in_invoice', 'out_invoice'))
+        reversed_mapping = defaultdict(lambda: self.env['account.move'])
+        for reverse_move in self.env['account.move'].search([
+            ('state', '=', 'posted'),
+            '|', '|',
+            '&', ('reversed_entry_id', 'in', in_invoices.ids), ('move_type', '=', 'in_refund'),
+            '&', ('reversed_entry_id', 'in', out_invoices.ids), ('move_type', '=', 'out_refund'),
+            '&', ('reversed_entry_id', 'in', others.ids), ('move_type', '=', 'entry'),
+        ]):
+            reversed_mapping[reverse_move.reversed_entry_id] += reverse_move
+
+        caba_mapping = defaultdict(lambda: self.env['account.move'])
+        caba_company_ids = self.company_id.filtered(lambda c: c.tax_exigibility)
+        reverse_moves_ids = [move.id for moves in reversed_mapping.values() for move in moves]
+        for caba_move in self.env['account.move'].search([
+            ('tax_cash_basis_move_id', 'in', self.ids + reverse_moves_ids),
+            ('state', '=', 'posted'),
+            ('move_type', '=', 'entry'),
+            ('company_id', 'in', caba_company_ids.ids)
+        ]):
+            caba_mapping[caba_move.tax_cash_basis_move_id] += caba_move
+
         for move in self:
 
             if move.payment_state == 'invoicing_legacy':
@@ -1486,9 +1510,10 @@ class AccountMove(models.Model):
                     new_pmt_state = 'partial'
 
             if new_pmt_state == 'paid' and move.move_type in ('in_invoice', 'out_invoice', 'entry'):
-                reverse_type = move.move_type == 'in_invoice' and 'in_refund' or move.move_type == 'out_invoice' and 'out_refund' or 'entry'
-                reverse_moves = self.env['account.move'].search([('reversed_entry_id', '=', move.id), ('state', '=', 'posted'), ('move_type', '=', reverse_type)])
-                caba_moves = self.env['account.move'].search([('tax_cash_basis_move_id', 'in', move.ids + reverse_moves.ids), ('state', '=', 'posted')])
+                reverse_moves = reversed_mapping[move]
+                caba_moves = caba_mapping[move]
+                for reverse_move in reverse_moves:
+                    caba_moves |= caba_mapping[reverse_move]
 
                 # We only set 'reversed' state in cas of 1 to 1 full reconciliation with a reverse entry; otherwise, we use the regular 'paid' state
                 # We ignore potentials cash basis moves reconciled because the transition account of the tax is reconcilable
@@ -2011,6 +2036,10 @@ class AccountMove(models.Model):
         if move.is_invoice(include_receipts=True):
             # Make sure to recompute payment terms. This could be necessary if the date is different for example.
             # Also, this is necessary when creating a credit note because the current invoice is copied.
+
+            if move.currency_id != self.company_id.currency_id:
+                move.with_context(check_move_validity=False)._onchange_currency()
+                move._check_balanced()
             move._recompute_payment_terms_lines()
 
         return move
@@ -2675,6 +2704,9 @@ class AccountMove(models.Model):
             if move.is_invoice(include_receipts=True) and float_compare(move.amount_total, 0.0, precision_rounding=move.currency_id.rounding) < 0:
                 raise UserError(_("You cannot validate an invoice with a negative total amount. You should create a credit note instead. Use the action menu to transform it into a credit note or refund."))
 
+            if move.line_ids.account_id.filtered(lambda account: account.deprecated):
+                raise UserError(_("A line of this move is using a deprecated account, you cannot post it."))
+
             # Handle case when the invoice_date is not set. In that case, the invoice_date is set at today and then,
             # lines are recomputed accordingly.
             # /!\ 'check_move_validity' must be there since the dynamic lines will be recomputed outside the 'onchange'
@@ -3007,7 +3039,7 @@ class AccountMove(models.Model):
     def _compute_display_qr_code(self):
         for record in self:
             record.display_qr_code = (
-                record.move_type in ('out_invoice', 'out_receipt')
+                record.move_type in ('out_invoice', 'out_receipt', 'in_invoice', 'in_receipt')
                 and record.company_id.qr_code
             )
 
@@ -3284,7 +3316,7 @@ class AccountMoveLine(models.Model):
         string="Originator Tax Distribution Line", ondelete='restrict', readonly=True,
         check_company=True,
         help="Tax distribution line that caused the creation of this move line, if any")
-    tax_tag_ids = fields.Many2many(string="Tags", comodel_name='account.account.tag', ondelete='restrict',
+    tax_tag_ids = fields.Many2many(string="Tags", comodel_name='account.account.tag', ondelete='restrict', context={'active_test': False},
         help="Tags assigned to this line by the tax creating it, if any. It determines its impact on financial reports.", tracking=True)
     tax_audit = fields.Char(string="Tax Audit String", compute="_compute_tax_audit", store=True,
         help="Computed field, listing the tax grids impacted by this line, and the amount it applies to each of them.")
@@ -4035,6 +4067,18 @@ class AccountMoveLine(models.Model):
                     raise UserError(_('You cannot use taxes on lines with an Off-Balance account'))
                 if line.reconciled:
                     raise UserError(_('Lines from "Off-Balance Sheet" accounts cannot be reconciled'))
+
+    @api.constrains('product_uom_id')
+    def _check_product_uom_category_id(self):
+        for line in self:
+            if line.product_uom_id and line.product_id and line.product_uom_id.category_id != line.product_id.product_tmpl_id.uom_id.category_id:
+                raise UserError(_(
+                    "The Unit of Measure (UoM) '%s' you have selected for product '%s', "
+                    "is incompatible with its category : %s.",
+                    line.product_uom_id.name,
+                    line.product_id.name,
+                    line.product_id.product_tmpl_id.uom_id.category_id.name
+                ))
 
     def _affect_tax_report(self):
         self.ensure_one()
@@ -4871,7 +4915,7 @@ class AccountMoveLine(models.Model):
             if not journal.company_id.income_currency_exchange_account_id.id:
                 raise UserError(_("You should configure the 'Gain Exchange Rate Account' in your company settings, to manage automatically the booking of accounting entries related to differences between exchange rates."))
 
-            exchange_diff_move_vals['date'] = max(exchange_diff_move_vals['date'], company._get_user_fiscal_lock_date())
+            exchange_diff_move_vals['date'] = max(exchange_diff_move_vals['date'], company._get_user_fiscal_lock_date() + timedelta(days=1))
 
             exchange_move = self.env['account.move'].create(exchange_diff_move_vals)
             exchange_move.line_ids.write({'tax_exigible': True}) # Enforce exigibility in case some cash basis adjustments were made in this exchange difference

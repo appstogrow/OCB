@@ -4589,8 +4589,8 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"من العديد من الدول، تُستخدم الإشعارات المدينة لزيادة الكميات لفاتورة موجودة بالفعل\n"
-"or in some specific cases to cancel a credit noteأو في بعض الحالات المحددة لإلغاء إشعار دائن.\n"
+"في العديد من الدول، تُستخدم الإشعارات المدينة لزيادة البالغ لفاتورة موجودة بالفعل\n"
+"أو في بعض الحالات المحددة لإلغاء إشعار دائن.\n"
 "الأمر أشبه بفاتورة عادية، ولكن علينا تتبع الرابط الذي يحتوي على الفاتورة الأصلية.\n"
 "المعالج المُستخدَم شبيه بمعالج الإشعار الدائن.\n"
 "    "
@@ -8029,7 +8029,7 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"يقوم هذا التطبيق بتنفيذ نظام الالجداول الزمنية.\n"
+"يقوم هذا التطبيق بتنفيذ نظام الجداول الزمنية.\n"
 "==========================================\n"
 "\n"
 "بوسع كل موظف تروميز وتتبع الوقت المقضي في المشاريع المختلفة.\n"
@@ -9510,7 +9510,7 @@ msgstr ""
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.report_irmodeloverview
 msgid "<strong>Inherited</strong>"
-msgstr "<strong>وارث</strong>"
+msgstr "<strong>موروث</strong>"
 
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.report_irmodeloverview
@@ -11253,12 +11253,12 @@ msgstr "الموافقات"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_approvals_purchase
 msgid "Approvals - Purchase"
-msgstr "الموافقات - الشراء "
+msgstr "الموافقات - المشتريات "
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_approvals_purchase_stock
 msgid "Approvals - Purchase - Stock"
-msgstr "الموافقات - الشراء - المخزون "
+msgstr "الموافقات - المشتريات - المخزون "
 
 #. module: base
 #: model:ir.actions.act_window,name:base.open_module_tree
@@ -12595,10 +12595,10 @@ msgid ""
 "a new contact should be created under that new company. You can use the "
 "\"Discard\" button to abandon this change."
 msgstr ""
-"Changing the company of a contact should only be done if it was never "
-"correctly set. If an existing contact starts working for a new company then "
-"a new contact should be created under that new company. You can use the "
-"\"Discard\" button to abandon this change."
+"يجب أن يتم تغيير شركة جهة الاتصال فقط إذا لم يتم ضبطها بشكل صحيح منذ "
+"البداية. إذا باشرت إحدى جهات الاتصال الموجودة بالعمل لصالح شركة جديدة، "
+"سيتوجب حينها إنشاء جهة اتصال جديدة تحت الشركة الجديدة. بإمكانك استخدام زر "
+"\"إهمال\" لطرح هذا التغيير. "
 
 #. module: base
 #: code:addons/base/models/ir_model.py:0
@@ -15540,7 +15540,7 @@ msgstr ""
 #: code:addons/base/models/ir_ui_menu.py:0
 #, python-format
 msgid "Error! You cannot create recursive menus."
-msgstr "خطأ! لا يمكنك إنشاء قوائم تكرارية."
+msgstr "خطأ! لا يمكنك إنشاء قوائم متداخلة. "
 
 #. module: base
 #: model:res.country,name:base.ee
@@ -19021,8 +19021,8 @@ msgstr "LGPL الإصدار 3"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_lt_reports
-msgid "LT - Accounting Reports"
-msgstr "LT - Accounting Reports"
+msgid "Lithuania - Accounting Reports"
+msgstr ""
 
 #. module: base
 #: code:addons/base/models/ir_ui_view.py:0
@@ -24859,19 +24859,19 @@ msgstr "السير الذاتية ورسائل التوظيف من المستن�
 #: code:addons/models.py:0
 #, python-format
 msgid "Recursion Detected."
-msgstr "Recursion Detected."
+msgstr "تم رصد تداخل. "
 
 #. module: base
 #: code:addons/base/models/ir_module.py:0
 #, python-format
 msgid "Recursion error in modules dependencies !"
-msgstr "خطأ تداخل في متطلبات الوحدات البرمجية!"
+msgstr "خطأ تداخل في متطلبات التطبيقات! "
 
 #. module: base
 #: code:addons/base/models/ir_actions.py:0
 #, python-format
 msgid "Recursion found in child server actions"
-msgstr "Recursion found in child server actions"
+msgstr "تم رصد تداخل في إجراءات الخادم التابع "
 
 #. module: base
 #: model:ir.model.fields,field_description:base.field_ir_model_data__reference
@@ -27332,8 +27332,8 @@ msgstr "الموديول `%s` غير متوفر حاليًا، برجاء الم
 #. module: base
 #: code:addons/base/models/ir_module.py:0
 #, python-format
-msgid "The `base` module cannot be uninstalled"
-msgstr "لا يمكن إزالة موديول `القاعدة`"
+msgid "Those modules cannot be uninstalled: %s"
+msgstr ""
 
 #. module: base
 #: model:ir.model.fields,help:base.field_res_partner_category__active
@@ -30168,7 +30168,7 @@ msgstr ""
 #: code:addons/base/models/res_partner.py:0
 #, python-format
 msgid "You can not create recursive tags."
-msgstr "لا يمكنك إنشاء وسوم تكرارية."
+msgstr "لا يمكنك إنشاء علامات تصنيف متداخلة. "
 
 #. module: base
 #: model:ir.model.constraint,message:base.constraint_res_users_login_key
@@ -30218,19 +30218,19 @@ msgstr ""
 #: code:addons/base/models/res_partner.py:0
 #, python-format
 msgid "You cannot create recursive Partner hierarchies."
-msgstr "لا يمكنك إنشاء تسلسلات هرمية متكررة للشركاء."
+msgstr "لا يمكنك إنشاء تسلسلات هرمية متداخلة للشركاء. "
 
 #. module: base
 #: code:addons/base/models/res_company.py:0
 #, python-format
 msgid "You cannot create recursive companies."
-msgstr "لا يمكنك إنشاء شركات تكرارية."
+msgstr "لا يمكنك إنشاء شركات متداخلة. "
 
 #. module: base
 #: code:addons/base/models/ir_ui_view.py:0
 #, python-format
 msgid "You cannot create recursive inherited views."
-msgstr "لا يمكنك إنشاء أدوات عرض موروثة متكررة."
+msgstr "لا يمكنك إنشاء أدوات عرض موروثة متداخلة. "
 
 #. module: base
 #: code:addons/base/models/res_users.py:0

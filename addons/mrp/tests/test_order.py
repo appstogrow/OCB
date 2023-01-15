@@ -669,10 +669,10 @@ class TestMrpOrder(TestMrpCommon):
         mo.move_raw_ids.filtered(lambda m: m.state != 'done')[0].quantity_done = 0
         update_quantity_wizard.change_prod_qty()
 
-        self.assertEqual(len(mo.move_raw_ids), 2)
+        self.assertEqual(len(mo.move_raw_ids), 4)
 
         mo.button_mark_done()
-        self.assertTrue(all(s == 'done' for s in mo.move_raw_ids.mapped('state')))
+        self.assertTrue(all(s in ['done', 'cancel'] for s in mo.move_raw_ids.mapped('state')))
         self.assertEqual(sum(mo.move_raw_ids.mapped('move_line_ids.product_uom_qty')), 0)
 
     def test_consumption_strict_1(self):
@@ -1912,17 +1912,23 @@ class TestMrpOrder(TestMrpCommon):
         wo_3 = mo.workorder_ids[2]
         self.assertEqual(mo.state, 'confirmed')
 
+        duration_expected = wo_1.duration_expected
         wo_1.button_start()
         self.assertEqual(mo.state, 'progress')
         wo_1.button_finish()
+        self.assertEqual(duration_expected, wo_1.duration_expected)
 
+        duration_expected = wo_2.duration_expected
         wo_2.button_start()
         wo_2.qty_producing = 8
         wo_2.button_finish()
+        self.assertEqual(duration_expected, wo_2.duration_expected)
 
+        duration_expected = wo_3.duration_expected
         wo_3.button_start()
         wo_3.qty_producing = 8
         wo_3.button_finish()
+        self.assertEqual(duration_expected, wo_3.duration_expected)
 
         self.assertEqual(mo.state, 'to_close')
         mo.button_mark_done()

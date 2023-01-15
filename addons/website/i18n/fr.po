@@ -219,6 +219,8 @@ msgid ""
 "* provided that your analytics is anonymized, which is not the\n"
 "            case by default with Google Analytics."
 msgstr ""
+"* à condition que vos analyses soient anonymisées;, ce qui n'est pas le cas\n"
+"            par défaut avec Google Analytics."
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.footer_custom
@@ -1104,6 +1106,8 @@ msgid ""
 "A Google Map error occurred. Make sure to read the key configuration popup "
 "carefully."
 msgstr ""
+"Une erreur de Google Map s'est produite. Veillez à lire attentivement le "
+"pop-up de configuration des clés."
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_text_image
@@ -1886,7 +1890,7 @@ msgstr "CTA"
 #. module: website
 #: model:ir.model.fields,field_description:website.field_website_page__cache_key_expr
 msgid "Cache Key Expr"
-msgstr ""
+msgstr "Expression clé cache"
 
 #. module: website
 #: model:ir.model.fields,field_description:website.field_website_page__cache_time
@@ -3319,7 +3323,7 @@ msgstr "Activer la facturation sur votre projet Google"
 #: code:addons/website/static/src/xml/website.editor.xml:0
 #, python-format
 msgid "Enable the right google map APIs in your google account"
-msgstr ""
+msgstr "Activez les bonnes API de Google Map dans votre compte Google"
 
 #. module: website
 #. openerp-web
@@ -3413,6 +3417,8 @@ msgid ""
 "Expression (tuple) to evaluate the cached key. \n"
 "E.g.: \"(request.params.get(\"currency\"), )\""
 msgstr ""
+"Expression (tuple) pour évaluer la clé mise en cache. \n"
+"Par ex.: \"(request.params.get(\"currency\"), )\""
 
 #. module: website
 #: model:ir.model.fields.selection,name:website.selection__theme_ir_ui_view__mode__extension
@@ -3669,7 +3675,7 @@ msgstr "Footer visible"
 #: code:addons/website/static/src/xml/website.res_config_settings.xml:0
 #, python-format
 msgid "For session cookies, authentification and analytics*,"
-msgstr ""
+msgstr "Pour les cookies de session, l'authentification et l'analyse*,"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.res_config_settings_view_form
@@ -5147,7 +5153,7 @@ msgstr "Actions principales"
 #: code:addons/website/static/src/xml/website.editor.xml:0
 #, python-format
 msgid "Make sure billing is enabled"
-msgstr ""
+msgstr "Veillez à activer la facturation"
 
 #. module: website
 #. openerp-web
@@ -5157,13 +5163,16 @@ msgid ""
 "Make sure to wait if errors keep being shown: sometimes enabling an API "
 "allows to use it immediately but Google keeps triggering errors for a while"
 msgstr ""
+"Veillez à attendre si des erreurs continuent de s'afficher : parfois, "
+"l'activation d'une API permet de l'utiliser activement, mais Google continue"
+" de déclencher des erreurs pendant un certain temps."
 
 #. module: website
 #. openerp-web
 #: code:addons/website/static/src/xml/website.editor.xml:0
 #, python-format
 msgid "Make sure your settings are properly configured:"
-msgstr ""
+msgstr "Veillez à correctement configurer vos paramètres :"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.user_navbar
@@ -5190,14 +5199,14 @@ msgstr "Gérer cette page"
 #: code:addons/website/static/src/xml/website.editor.xml:0
 #, python-format
 msgid "Maps JavaScript API"
-msgstr ""
+msgstr "API JavaScript Maps"
 
 #. module: website
 #. openerp-web
 #: code:addons/website/static/src/xml/website.editor.xml:0
 #, python-format
 msgid "Maps Static API"
-msgstr ""
+msgstr "API statiques Maps"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_google_map_options
@@ -6051,7 +6060,7 @@ msgstr "Pilules"
 #: code:addons/website/static/src/xml/website.editor.xml:0
 #, python-format
 msgid "Places API"
-msgstr ""
+msgstr "Places API"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_countdown_options
@@ -7194,7 +7203,7 @@ msgstr "Changer de theme"
 #: code:addons/website/static/src/xml/theme_preview.xml:0
 #, python-format
 msgid "TIP: Follow the"
-msgstr ""
+msgstr "ASTUCE : Suivez les"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.user_navbar
@@ -7367,7 +7376,7 @@ msgstr ""
 #: code:addons/website/static/src/snippets/s_countdown/000.xml:0
 #, python-format
 msgid "The following message will become visible"
-msgstr ""
+msgstr "Le message suivant deviendra visible"
 
 #. module: website
 #: model:ir.model.fields,help:website.field_res_partner__website_url
@@ -7684,7 +7693,7 @@ msgstr ""
 #. module: website
 #: model:ir.model.fields,help:website.field_website_page__cache_time
 msgid "Time to cache the page. (0 = no cache)"
-msgstr ""
+msgstr "Temps de mise en cache de la page. (0 = pas de cache)"
 
 #. module: website
 #. openerp-web
@@ -8297,7 +8306,7 @@ msgstr "Mode héritage de vue"
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_product_list
 msgid "View item"
-msgstr ""
+msgstr "Afficher l'article"
 
 #. module: website
 #: model:ir.actions.act_window,name:website.website_visitor_view_action
@@ -8388,7 +8397,7 @@ msgstr "Visiteur"
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.website_visitor_view_form
 msgid "Visitor Information"
-msgstr ""
+msgstr "Informations pour les visiteurs"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.website_visitor_page_view_graph
@@ -8590,7 +8599,7 @@ msgstr "Domaine du site web"
 #. module: website
 #: model:ir.actions.act_url,name:website.action_website_edit
 msgid "Website Edit Mode"
-msgstr ""
+msgstr "Mode éditeur du site web"
 
 #. module: website
 #: model:ir.model.fields,field_description:website.field_website__favicon
@@ -8822,7 +8831,7 @@ msgstr "Que voulez-vous faire?"
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_countdown_options
 msgid "What should happen at the end?"
-msgstr ""
+msgstr "Que doit-il se passer à la fin ?"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_table_of_content
@@ -9355,7 +9364,7 @@ msgstr "menu, tarification"
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.company_description_google_map
 msgid "not properly configured"
-msgstr ""
+msgstr "pas configuré correctement"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.color_combinations_debug_view
@@ -9383,14 +9392,14 @@ msgstr ""
 #: code:addons/website/static/src/snippets/s_countdown/000.xml:0
 #, python-format
 msgid "once the countdown ends."
-msgstr ""
+msgstr "une fois le compte à rebours terminé."
 
 #. module: website
 #. openerp-web
 #: code:addons/website/static/src/snippets/s_countdown/000.xml:0
 #, python-format
 msgid "only"
-msgstr ""
+msgstr "seulement"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.user_navbar
@@ -9439,6 +9448,8 @@ msgid ""
 "session_id (Odoo)<br/>\n"
 "                                            fileToken (Odoo)"
 msgstr ""
+"session_id (Odoo)<br/>\n"
+"                                            fileToken (Odoo)"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.snippets
@@ -9473,7 +9484,7 @@ msgstr "cette page"
 #: code:addons/website/static/src/xml/theme_preview.xml:0
 #, python-format
 msgid "to build the perfect page in 5 steps."
-msgstr ""
+msgstr "pour créer la page parfaite en 5 étapes."
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.snippets
@@ -9545,7 +9556,7 @@ msgstr "⌙ Hauteur"
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.snippet_options
 msgid "⌙ Height (Scrolled)"
-msgstr ""
+msgstr "⌙ Hauteur (défilement)"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_rating_options
@@ -9560,7 +9571,7 @@ msgstr "⌙ Intensité"
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.snippet_options
 msgid "⌙ Label"
-msgstr ""
+msgstr "⌙ Étiquette"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.snippet_options
@@ -9570,12 +9581,12 @@ msgstr "⌙ Large"
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_dynamic_snippet_options_template
 msgid "⌙ Normal devices"
-msgstr ""
+msgstr "⌙ Appareils normaux"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.snippet_options
 msgid "⌙ Off-Canvas Logo"
-msgstr ""
+msgstr "⌙ Logo hors canvas"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.snippet_options_shadow_widgets
@@ -9600,17 +9611,17 @@ msgstr "⌙ Petit"
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_dynamic_snippet_options_template
 msgid "⌙ Small devices"
-msgstr ""
+msgstr "⌙ Petits appareils"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.snippet_options
 msgid "⌙ Spacing"
-msgstr ""
+msgstr "⌙ Espacement"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.snippet_options_shadow_widgets
 msgid "⌙ Spread"
-msgstr ""
+msgstr "⌙ Diffusion"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_google_map_options
@@ -9632,4 +9643,4 @@ msgstr "⌙ Largeur"
 #: code:addons/website/static/src/js/editor/snippets.options.js:0
 #, python-format
 msgid "└ Height"
-msgstr ""
+msgstr "└ Hauteur"

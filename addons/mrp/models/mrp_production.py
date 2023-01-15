@@ -1000,20 +1000,12 @@ class MrpProduction(models.Model):
     def _update_raw_moves(self, factor):
         self.ensure_one()
         update_info = []
-        move_to_unlink = self.env['stock.move']
         for move in self.move_raw_ids.filtered(lambda m: m.state not in ('done', 'cancel')):
             old_qty = move.product_uom_qty
             new_qty = old_qty * factor
-            if new_qty > 0:
-                move.write({'product_uom_qty': new_qty})
-                move._action_assign()
-                update_info.append((move, old_qty, new_qty))
-            else:
-                if move.quantity_done > 0:
-                    raise UserError(_('Lines need to be deleted, but can not as you still have some quantities to consume in them. '))
-                move._action_cancel()
-                move_to_unlink |= move
-        move_to_unlink.unlink()
+            move.write({'product_uom_qty': new_qty})
+            move._action_assign()
+            update_info.append((move, old_qty, new_qty))
         return update_info
 
     def _get_ready_to_produce_state(self):
@@ -1497,18 +1489,6 @@ class MrpProduction(models.Model):
                         new_moves_vals.append(move_vals[0])
                 new_moves = self.env['stock.move'].create(new_moves_vals)
             backorders |= backorder_mo
-            first_wo = self.env['mrp.workorder']
-            for old_wo, wo in zip(production.workorder_ids, backorder_mo.workorder_ids):
-                wo.qty_produced = max(old_wo.qty_produced - old_wo.qty_producing, 0)
-                if wo.product_tracking == 'serial':
-                    wo.qty_producing = 1
-                else:
-                    wo.qty_producing = wo.qty_remaining
-                if wo.qty_producing == 0:
-                    wo.action_cancel()
-                if not first_wo and wo.state != 'cancel':
-                    first_wo = wo
-            first_wo.state = 'ready'
 
             # We need to adapt `duration_expected` on both the original workorders and their
             # backordered workorders. To do that, we use the original `duration_expected` and the
@@ -1532,6 +1512,19 @@ class MrpProduction(models.Model):
         backorders.move_raw_ids.move_line_ids.filtered(lambda ml: ml.product_id.tracking == 'serial' and ml.product_qty == 0).unlink()
         backorders.move_raw_ids._recompute_state()
 
+        for production, backorder_mo in zip(self, backorders):
+            first_wo = self.env['mrp.workorder']
+            for old_wo, wo in zip(production.workorder_ids, backorder_mo.workorder_ids):
+                wo.qty_produced = max(old_wo.qty_produced - old_wo.qty_producing, 0)
+                if wo.product_tracking == 'serial':
+                    wo.qty_producing = 1
+                else:
+                    wo.qty_producing = wo.qty_remaining
+                if wo.qty_producing == 0:
+                    wo.action_cancel()
+                if not first_wo and wo.state != 'cancel':
+                    first_wo = wo
+            first_wo.state = 'ready'
         return backorders
 
     def button_mark_done(self):

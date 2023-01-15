@@ -7,7 +7,7 @@
 # Carlos rodriguez <carlosalbertor436@gmail.com>, 2020
 # Andrés Felipe Casas Palomino <afcasas@nubark.com>, 2020
 # Carolina Gonzalez <cgo@odoo.com>, 2020
-# Christopher Ormaza <chris.ormaza@gmail.com>, 2020
+# 3fea9b0a501d83c62ec74234fbc72e10_a827c46 <dce1956db1a05bce2aec6cc4ef975d99_318347>, 2020
 # David Arnold <blaggacao@users.noreply.github.com>, 2020
 # Rick Hunter <rick_hunter_ec@yahoo.com>, 2020
 # David Sanchez <david.sanchez@jarsa.com.mx>, 2020
@@ -45,12 +45,12 @@
 # ramiadavid, 2022
 # juankfj, 2022
 # Jonatan Gk, 2022
-# Pedro M. Baeza <pedro.baeza@tecnativa.com>, 2022
 # Luis D Lafaurie, 2022
 # Martin Trigaux, 2022
 # Yolann Sabaux, 2022
-# jabelchi, 2022
+# Josep Anton Belchi, 2022
 # Leonardo J. Caballero G. <leonardocaballero@gmail.com>, 2022
+# Pedro M. Baeza <pedro.baeza@tecnativa.com>, 2022
 # 
 msgid ""
 msgstr ""
@@ -58,7 +58,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-07 14:40+0000\n"
 "PO-Revision-Date: 2020-09-07 08:20+0000\n"
-"Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>, 2022\n"
+"Last-Translator: Pedro M. Baeza <pedro.baeza@tecnativa.com>, 2022\n"
 "Language-Team: Spanish (https://www.transifex.com/odoo/teams/41243/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1064,6 +1064,17 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:website.s_chart
 msgid "A Chart Title"
 msgstr "Un título de gráfico"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/js/editor/snippets.options.js:0
+#, python-format
+msgid ""
+"A Google Map error occurred. Make sure to read the key configuration popup "
+"carefully."
+msgstr ""
+"Ocurrió un error con el mapa de Google. Asegúrese de leer cuidadosamente la "
+"ventana emergente de configuración de la clave."
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_text_image
@@ -3108,7 +3119,7 @@ msgstr "Menú desplegable"
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_countdown_options
 msgid "Due Date"
-msgstr "Fecha vencimiento"
+msgstr "Fecha de vencimiento"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_features_grid
@@ -3271,6 +3282,13 @@ msgstr "Nombre del campo vacío en %r"
 #, python-format
 msgid "Enable billing on your Google Project"
 msgstr "Habilite la facturación en su proyecto de Google"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Enable the right google map APIs in your google account"
+msgstr "Habilite las API adecuadas de Google Maps en su cuenta de Google"
 
 #. module: website
 #. openerp-web
@@ -5095,6 +5113,32 @@ msgid "Main actions"
 msgstr "Acciones principales"
 
 #. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Make sure billing is enabled"
+msgstr "Asegúrese de que la facturación está habilitada"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid ""
+"Make sure to wait if errors keep being shown: sometimes enabling an API "
+"allows to use it immediately but Google keeps triggering errors for a while"
+msgstr ""
+"Asegúrese de esperar si siguen apareciendo errores: algunas veces habilitar "
+"una API permite su uso de inmediato, pero Google sigue emitiendo errores por"
+" un tiempo"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Make sure your settings are properly configured:"
+msgstr "Asegúrese de que sus ajustes están configurados de forma adecuada:"
+
+#. module: website
 #: model_terms:ir.ui.view,arch_db:website.user_navbar
 msgid "Manage Pages"
 msgstr "Administrar páginas"
@@ -5113,6 +5157,20 @@ msgstr "Administrar sus páginas del sitio web"
 #: model_terms:ir.ui.view,arch_db:website.one_page_line
 msgid "Manage this page"
 msgstr "Administrar esta página"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Maps JavaScript API"
+msgstr "API Javascript de Maps"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Maps Static API"
+msgstr "API estática de Maps"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_google_map_options
@@ -5229,7 +5287,7 @@ msgstr "Medio"
 #: code:addons/website/static/src/js/editor/snippets.options.js:0
 #, python-format
 msgid "Min-Height"
-msgstr ""
+msgstr "Altura mínima"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_blockquote_options
@@ -5962,6 +6020,13 @@ msgstr "Píldora"
 #: model_terms:ir.ui.view,arch_db:website.snippet_options
 msgid "Pills"
 msgstr "Píldoras"
+
+#. module: website
+#. openerp-web
+#: code:addons/website/static/src/xml/website.editor.xml:0
+#, python-format
+msgid "Places API"
+msgstr "API de Places"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.s_countdown_options
@@ -6698,7 +6763,7 @@ msgstr "Secuencia"
 #: code:addons/website/static/src/xml/website.editor.xml:0
 #, python-format
 msgid "Serve font from Google servers"
-msgstr ""
+msgstr "Servir tipos de letra desde los servidores de Google"
 
 #. module: website
 #: model:ir.model,name:website.model_ir_actions_server
@@ -7505,6 +7570,8 @@ msgstr ""
 #, python-format
 msgid "This font is hosted and served to your visitors by Google servers"
 msgstr ""
+"El tipo de letra está almacenado y servido a sus visitantes por los "
+"servidores de Google"
 
 #. module: website
 #: model_terms:ir.ui.view,arch_db:website.bs_debug_view
@@ -9533,4 +9600,4 @@ msgstr "Ancho"
 #: code:addons/website/static/src/js/editor/snippets.options.js:0
 #, python-format
 msgid "└ Height"
-msgstr ""
+msgstr "└ Altura"

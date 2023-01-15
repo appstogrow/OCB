@@ -1758,6 +1758,8 @@ const RangeUserValueWidget = UnitUserValueWidget.extend({
         this.input.setAttribute('max', max);
         this.input.setAttribute('step', step);
         this.containerEl.appendChild(this.input);
+
+        this._onInputChange = _.debounce(this._onInputChange, 100);
     },
 
     //--------------------------------------------------------------------------
@@ -4058,7 +4060,7 @@ registry.BackgroundShape = SnippetOptionWidget.extend({
         const insertShapeContainer = newContainer => {
             const shapeContainer = target.querySelector(':scope > .o_we_shape');
             if (shapeContainer) {
-                shapeContainer.remove();
+                this._removeShapeEl(shapeContainer);
             }
             if (newContainer) {
                 const preShapeLayerElement = this._getLastPreShapeLayerElement();
@@ -4140,6 +4142,13 @@ registry.BackgroundShape = SnippetOptionWidget.extend({
             this.prevShapeContainer = shapeContainer.cloneNode(true);
             this.prevShape = target.dataset.oeShapeData;
         }
+    },
+    /**
+     * @private
+     * @param {HTMLElement} shapeEl
+     */
+    _removeShapeEl(shapeEl) {
+        shapeEl.remove();
     },
     /**
      * Overwrites shape properties with the specified data.
@@ -4248,7 +4257,12 @@ registry.BackgroundShape = SnippetOptionWidget.extend({
                 shapeToSelect = possibleShapes.find((shape, i) => {
                     return possibleShapes[i - 1] === previousShape;
                 });
-            } else {
+            }
+            // If there is no previous sibling, if the previous sibling had the
+            // last shape selected or if the previous shape could not be found
+            // in the possible shapes, default to the first shape. ([0] being no
+            // shapes selected.)
+            if (!shapeToSelect) {
                 shapeToSelect = possibleShapes[1];
             }
             return this._handlePreviewState(false, () => ({shape: shapeToSelect}));
@@ -4879,6 +4893,20 @@ registry.SnippetSave = SnippetOptionWidget.extend({
             }).open();
             dialog.on('closed', this, () => resolve());
         });
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * TODO adapt in master, this option should only be instantiated for real
+     * snippets in the first place.
+     *
+     * @override
+     */
+    _computeVisibility() {
+        return this.$target[0].hasAttribute('data-snippet');
     },
 });
 
