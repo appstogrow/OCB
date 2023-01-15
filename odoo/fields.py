@@ -1158,9 +1158,13 @@ class Field(MetaField('DummyField', (object,), {})):
 
     def compute_value(self, records):
         """ Invoke the compute method on ``records``; the results are in cache. """
+        company1 = records.env.company
         env = records.env
         if self.compute_sudo:
             records = records.sudo()
+            company2 = records.env.company
+            if company1 != company2:
+                _logger.warning("compute_value: {}.env.company: {} -> {}".format(records, company1, company2))
         fields = records.pool.field_computed[self]
 
         # Just in case the compute method does not assign a value, we already
