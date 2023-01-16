@@ -5961,23 +5961,24 @@ Fields:
                 # do not force recomputation on new records; those will be
                 # recomputed by accessing the field on the records
                 recs = recs.filtered('id')
-                # APPSTOGROW
-                # 1) Get the companies of the records.
-                # 2) For each company, get a company environment and recompute the records of that company.
+                # APPSTOGROW 1) Get the companies of the records.
                 recs_bypass = recs.sudo_bypass_global_rules()
-                company_ids = recs_bypass.mapped('company_id').ids
+                try:
+                    company_ids = recs_bypass.mapped('company_id').ids
+                except MissingError:
+                    recs_bypass = existing = recs_bypass.exists()
+                    company_ids = recs_bypass.mapped('company_id').ids
+                # APPSTOGROW 2) For each company,
+                # get a company environment and recompute the records of that company.
                 for company_id in company_ids:
-                  if not env.get(company_id):
-                    context = {key: value for key, value in recs.env.context.items()}
-                    context['allowed_company_ids'] = [company_id]
-                    env[company_id] = api.Environment(recs.env.cr, recs.env.uid, context)
-                  try:
+                    if not env.get(company_id):
+                        context = {key: value for key, value in recs.env.context.items()}
+                        context['allowed_company_ids'] = [company_id]
+                        env[company_id] = api.Environment(recs.env.cr, recs.env.uid, context)
                     company_recs_bypass = recs_bypass.filtered(lambda r: r.company_id.id == company_id)
                     company_recs = company_recs_bypass.with_env(env[company_id])
                     field.recompute(company_recs)
-                  except MissingError:
-                    existing = company_recs.exists()
-                    field.recompute(existing)
+                if 'existing' in locals():
                     # mark the field as computed on missing records, otherwise
                     # they remain forever in the todo list, and lead to an
                     # infinite loop...
