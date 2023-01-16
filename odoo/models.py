@@ -5947,6 +5947,12 @@ Fields:
             The fields and records to recompute have been determined by method
             :meth:`modified`.
         """
+        # APPSTOGROW
+        # Recompute each record with the record's company in the environment.
+        # A new environment will need a new cache.
+        # Therefore reuse the company environment when needed multiple times.
+        # TODO: Test the performance impact of recomputing with company environment.
+        env = {}
         def process(field):
             recs = self.env.records_to_compute(field)
             if not recs:
@@ -5956,18 +5962,18 @@ Fields:
                 # recomputed by accessing the field on the records
                 recs = recs.filtered('id')
                 # APPSTOGROW
-                # Recompute each record with the record's company in the environment.
                 # 1) Get the companies of the records.
                 # 2) For each company, get a company environment and recompute the records of that company.
                 recs_bypass = recs.sudo_bypass_global_rules()
                 company_ids = recs_bypass.mapped('company_id').ids
                 for company_id in company_ids:
-                  company = self.env['res.company'].browse(company_id)
-                  company_recs_bypass = recs_bypass.filtered(lambda r: r.company_id == company)
-                  company_recs = company_recs_bypass.with_context(bypass_global_rules=False)
-                  company_recs.env.company = company
-                  company_recs.env.companies = company
+                  if not env.get(company_id):
+                    context = {key: value for key, value in recs.env.context.items()}
+                    context['allowed_company_ids'] = [company_id]
+                    env[company_id] = api.Environment(recs.env.cr, recs.env.uid, context)
                   try:
+                    company_recs_bypass = recs_bypass.filtered(lambda r: r.company_id.id == company_id)
+                    company_recs = company_recs_bypass.with_env(env[company_id])
                     field.recompute(company_recs)
                   except MissingError:
                     existing = company_recs.exists()
