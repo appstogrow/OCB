@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError
 from . import ir_model
 
 """
@@ -152,7 +152,7 @@ class Base(models.AbstractModel):
             return self
         else:
             if raise_if_access_error:
-                raise UserError("access_control() failed for this record: {},{}".format(self, id))
+                raise AccessError("access_control() failed for this record: {},{}".format(self, id))
 
     def record_company(self):
         self = self.sudo_bypass_global_rules()
