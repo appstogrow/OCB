@@ -5952,7 +5952,7 @@ Fields:
         # A new environment will need a new cache.
         # Therefore reuse the company environment when needed multiple times.
         # TODO: Test the performance impact of recomputing with company environment.
-        env = {}
+        # env = {}
         def process(field):
             recs = self.env.records_to_compute(field)
             if not recs:
@@ -5971,12 +5971,16 @@ Fields:
                 # APPSTOGROW 2) For each company,
                 # get a company environment and recompute the records of that company.
                 for company_id in company_ids:
-                    if not env.get(company_id):
-                        context = {key: value for key, value in recs.env.context.items()}
-                        context['allowed_company_ids'] = [company_id]
-                        env[company_id] = api.Environment(recs.env.cr, recs.env.uid, context)
+                    # if not env.get(company_id):
+                    context = {key: value for key, value in recs.env.context.items()}
+                    context['allowed_company_ids'] = [company_id]
+                    # env[company_id] = api.Environment(recs.env.cr, recs.env.uid, context)
+                    # end if
+                    # env[company_id] = api.Environment(recs.env.cr, recs.env.uid, context, su=True)
+                    env_company_su = api.Environment(recs.env.cr, recs.env.uid, context, su=True)
                     company_recs_bypass = recs_bypass.filtered(lambda r: r.company_id.id == company_id)
-                    company_recs = company_recs_bypass.with_env(env[company_id])
+                    # company_recs = company_recs_bypass.with_env(env[company_id])
+                    company_recs = company_recs_bypass.with_env(env_company_su)
                     field.recompute(company_recs)
                 if 'existing' in locals():
                     # mark the field as computed on missing records, otherwise
