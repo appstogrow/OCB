@@ -406,6 +406,17 @@ class Registry(Mapping):
 
             for model in models:
                 model._auto_init()
+                # APPSTOGROW
+                # If model._auto_init() is not done on every model,
+                # then model.init() may fail,
+                # because of global security rules created by "multicompany_base".
+                # E.g. installing website:
+                # If "res.users" _auto_init() is not done,
+                # then "res.company" init() will fail, because
+                # - base/models/res_company init() will search for companies.
+                # - The company security rule [('id','in',company_ids)] will read users.
+                # - website_id is missing on res.users.
+            for model in models:
                 model.init()
 
             env['ir.model']._reflect_models(model_names)
