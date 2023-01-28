@@ -5963,11 +5963,16 @@ Fields:
                 recs = recs.filtered('id')
                 # APPSTOGROW 1) Get the companies of the records.
                 recs_bypass = recs.sudo_bypass_global_rules()
+                def _get_company_ids(records):
+                    if records._name == "res.company":
+                        return records.ids
+                    else:
+                        return records.mapped('company_id').ids
                 try:
-                    company_ids = recs_bypass.mapped('company_id').ids
+                    company_ids = _get_company_ids(recs_bypass)
                 except MissingError:
                     recs_bypass = existing = recs_bypass.exists()
-                    company_ids = recs_bypass.mapped('company_id').ids
+                    company_ids = _get_company_ids(recs_bypass)
                 # APPSTOGROW 2) For each company,
                 # get a company environment and recompute the records of that company.
                 for company_id in company_ids:
