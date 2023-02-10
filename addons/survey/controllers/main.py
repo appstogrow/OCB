@@ -345,11 +345,14 @@ class Survey(http.Controller):
         and send back this html to the survey_form widget that will inject it into the page."""
         survey_data = self._prepare_survey_data(survey_sudo, answer_sudo, **post)
 
+        # APPSTOGROW
+        # Public user does not have access rights to ir.ui.view records.
+        # Limit the access control to not check access rights, only record rules.
         survey_content = False
         if answer_sudo.state == 'done':
-            survey_content = request.env.ref('survey.survey_fill_form_done')._render(survey_data)
+            survey_content = request.env.ref('survey.survey_fill_form_done', check_access_rights=False)._render(survey_data)
         else:
-            survey_content = request.env.ref('survey.survey_fill_form_in_progress')._render(survey_data)
+            survey_content = request.env.ref('survey.survey_fill_form_in_progress', check_access_rights=False)._render(survey_data)
 
         survey_progress = False
         if answer_sudo.state == 'in_progress' and not survey_data.get('question', request.env['survey.question']).is_page:
@@ -373,7 +376,7 @@ class Survey(http.Controller):
         return {
             'survey_content': survey_content,
             'survey_progress': survey_progress,
-            'survey_navigation': request.env.ref('survey.survey_navigation')._render(survey_data),
+            'survey_navigation': request.env.ref('survey.survey_navigation', check_access_rights=False)._render(survey_data),
         }
 
     @http.route('/survey/<string:survey_token>/<string:answer_token>', type='http', auth='public', website=True)

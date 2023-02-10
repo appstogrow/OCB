@@ -130,14 +130,17 @@ class Base(models.AbstractModel):
                             # with user.write({'company_id': 1, 'company_ids': [[4, 1, 0]})
                             self.env[model_name].browse(res_id).access_control(raise_if_access_error=True)
 
-    def access_control(self, raise_if_access_error):
+    def access_control(self, raise_if_access_error, check_access_rights=True):
         """
         Use cases:
         - self.env.ref('xmlid'): .access_control() is added to the api.
         - create() & write() for security reasons.
         """
         # access_ok will always be True in superuser mode.
-        access_ok = self.check_access_rights('read', raise_exception=raise_if_access_error)
+        if check_access_rights:
+            access_ok = self.check_access_rights('read', raise_exception=raise_if_access_error)
+        else:
+            access_ok = True
 
         if not self.env.user:
             rule_ok = True
