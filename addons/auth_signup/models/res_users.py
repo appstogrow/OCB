@@ -194,7 +194,8 @@ class ResUsers(models.Model):
             'partner_to': False,
             'scheduled_date': False,
         }
-        template.write(template_values)
+        # template.write(template_values)
+        # ACCESS ERROR: Users cannot edit system record.
 
         for user in self:
             if not user.email:

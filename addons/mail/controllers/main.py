@@ -146,10 +146,12 @@ class MailController(http.Controller):
 
     @http.route('/mail/read_followers', type='json', auth='user')
     def read_followers(self, res_model, res_id):
+        record = request.env[res_model].browse(res_id)
+        company = record.record_company()
         request.env['mail.followers'].check_access_rights("read")
-        request.env[res_model].check_access_rights("read")
-        request.env[res_model].browse(res_id).check_access_rule("read")
-        follower_recs = request.env['mail.followers'].search([('res_model', '=', res_model), ('res_id', '=', res_id)])
+        record.check_access_rights("read")
+        record.with_record_company().check_access_rule("read")
+        follower_recs = request.env['mail.followers'].with_company(company).search([('res_model', '=', res_model), ('res_id', '=', res_id)])
 
         followers = []
         follower_id = None
@@ -182,7 +184,7 @@ class MailController(http.Controller):
         follower = request.env['mail.followers'].sudo().browse(follower_id)
         follower.ensure_one()
         request.env[follower.res_model].check_access_rights("read")
-        request.env[follower.res_model].browse(follower.res_id).check_access_rule("read")
+        request.env[follower.res_model].browse(follower.res_id).with_record_company().check_access_rule("read")
 
         # find current model subtypes, add them to a dictionary
         subtypes = request.env['mail.message.subtype'].search([
@@ -277,6 +279,12 @@ class MailController(http.Controller):
 
     @http.route('/mail/init_messaging', type='json', auth='user')
     def mail_init_messaging(self):
+        try:
+            public_partner = request.env.ref('base.public_partner').sudo().mail_partner_format(),
+        except:
+            public_partner = request.env['res.users'].with_context(active_test=False).search(
+                [('groups_id', '=', request.env.ref('base.group_public').id),('company_id','=',request.env.company.id)]
+            ).ensure_one().partner_id.mail_partner_format()
         values = {
             'needaction_inbox_counter': request.env['res.partner'].get_needaction_count(),
             'starred_counter': request.env['res.partner'].get_starred_count(),
@@ -289,7 +297,7 @@ class MailController(http.Controller):
             'moderation_counter': request.env.user.moderation_counter,
             'moderation_channel_ids': request.env.user.moderation_channel_ids.ids,
             'partner_root': request.env.ref('base.partner_root').sudo().mail_partner_format(),
-            'public_partner': request.env.ref('base.public_partner').sudo().mail_partner_format(),
+            'public_partner': public_partner,
             'public_partners': [partner.mail_partner_format() for partner in request.env.ref('base.group_public').sudo().with_context(active_test=False).users.partner_id],
             'current_partner': request.env.user.partner_id.mail_partner_format(),
             'current_user_id': request.env.user.id,
@@ -308,7 +316,7 @@ class MailController(http.Controller):
 
     @http.route('/mail/get_suggested_recipients', type='json', auth='user')
     def message_get_suggested_recipients(self, model, res_ids):
-        records = request.env[model].browse(res_ids)
+        records = request.env[model].browse(res_ids).with_record_company()
         try:
             records.check_access_rule('read')
             records.check_access_rights('read')

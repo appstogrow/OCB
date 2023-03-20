@@ -42,6 +42,7 @@ class IrRule(models.Model):
 
     @api.model
     def _eval_context(self):
+        self = self.sudo(bypass_global_rules=True)
         """Returns a dictionary to use as evaluation context for
            ir.rule domains.
            Note: company_ids contains the ids of the activated companies
@@ -113,7 +114,7 @@ class IrRule(models.Model):
         if mode not in self._MODES:
             raise ValueError('Invalid mode: %r' % (mode,))
 
-        if self.env.su:
+        if self.env.su and self.env.context.get("bypass_global_rules"):
             return self.browse(())
 
         query = """ SELECT r.id FROM ir_rule r JOIN ir_model m ON (r.model_id=m.id)
@@ -124,6 +125,14 @@ class IrRule(models.Model):
                          OR r.global)
                     ORDER BY r.id
                 """.format(mode=mode)
+
+        if self.env.su:
+            query = """ SELECT r.id FROM ir_rule r JOIN ir_model m ON (r.model_id=m.id)
+                        WHERE m.model=%s AND r.active AND r.perm_{mode}
+                        AND r.global
+                        ORDER BY r.id
+                        -- %s
+                    """.format(mode=mode)
         self._cr.execute(query, (model_name, self._uid))
         return self.browse(row[0] for row in self._cr.fetchall())
 
@@ -140,7 +149,7 @@ class IrRule(models.Model):
 
         # browse user and rules as SUPERUSER_ID to avoid access errors!
         eval_context = self._eval_context()
-        user_groups = self.env.user.groups_id
+        user_groups = self.sudo(bypass_global_rules=True).env.user.groups_id
         global_domains = []                     # list of domains
         group_domains = []                      # list of domains
         for rule in rules.sudo():
@@ -215,7 +224,7 @@ class IrRule(models.Model):
         return res
 
     def _make_access_error(self, operation, records):
-        _logger.info('Access Denied by record rules for operation: %s on record ids: %r, uid: %s, model: %s', operation, records.ids[:6], self._uid, records._name)
+        _logger.info('Access Denied by record rules for operation: %s on record ids: %r, uid: %s, model: %s, company_id: %s', operation, records.ids[:6], self._uid, records._name, self.env.company.id)
 
         model = records._name
         description = self.env['ir.model']._get(model).name or model
@@ -229,7 +238,9 @@ class IrRule(models.Model):
         operation_error = msg_heads[operation]
         resolution_info = _("Contact your administrator to request access if necessary.")
 
-        if not self.env.user.has_group('base.group_no_one') or not self.env.user.has_group('base.group_user'):
+        # APPSTOGROW: Max privileges are needed to read the user
+        user_sudo = self.env.user.sudo(bypass_global_rules=True)
+        if not user_sudo.has_group('base.group_no_one') or not user_sudo.has_group('base.group_user'):
             msg = """{operation_error}
 
 {resolution_info}""".format(
@@ -243,7 +254,8 @@ class IrRule(models.Model):
         # so it is relatively safe here to include the list of rules and record names.
         rules = self._get_failing(records, mode=operation).sudo()
 
-        records_description = ', '.join(['%s (id=%s)' % (rec.display_name, rec.id) for rec in records[:6].sudo()])
+        # APPSTOGROW: Max privileges are needed to avoid a loop.
+        records_description = ', '.join(['%s (id=%s)' % (rec.display_name, rec.id) for rec in records[:6].sudo_bypass_global_rules()])
         failing_records = _("Records: %s", records_description)
 
         user_description = '%s (id=%s)' % (self.env.user.name, self.env.user.id)

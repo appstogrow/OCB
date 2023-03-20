@@ -279,8 +279,8 @@ class Web_Editor(http.Controller):
 
     def _clean_context(self):
         # avoid allowed_company_ids which may erroneously restrict based on website
+        # NO! WEBSITES NEED allowed_company_ids, OTHERWISE api.Environment.company WILL USE self.user.company_id
         context = dict(request.context)
-        context.pop('allowed_company_ids', None)
         request.context = context
 
     @http.route("/web_editor/get_assets_editor_resources", type="json", auth="user", website=True)

@@ -1783,7 +1783,8 @@ actual arch.
         self._cr.execute(query, [model])
 
         rec = self.browse(it[0] for it in self._cr.fetchall())
-        return rec.with_context({'load_all_views': True})._check_xml()
+        # APPSTOGROW: Bypass global rules because the query may get views from any company.
+        return rec.sudo_bypass_global_rules().with_context({'load_all_views': True})._check_xml()
 
     @api.model
     def _validate_module_views(self, module):
@@ -1836,6 +1837,9 @@ actual arch.
         return self.with_context(active_test=False).search([('key', '=', self.key)]).filtered(lambda r: not r.xml_id == r.key)
 
     def _load_records_write(self, values):
+        # Global rules with non-standard fields fail (e.g. ir.ui.view.company_id not in base).
+        if self.env.su:
+            self = self.with_context(bypass_global_rules=True)
         """ During module update, when updating a generic view, we should also
             update its specific views (COW'd).
             Note that we will only update unmodified fields. That will mimic the

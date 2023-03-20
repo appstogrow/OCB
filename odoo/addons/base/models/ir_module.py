@@ -64,7 +64,9 @@ def assert_log_admin_access(method):
     to `user._is_admin()`.
     """
     def check_and_log(method, self, *args, **kwargs):
-        user = self.env.user
+        # assert_log_admin_access():
+        # Global rules with non-standard fields fail (e.g. res.partner.company_ids).
+        user = self.env.user.sudo(bypass_global_rules=True)
         origin = request.httprequest.remote_addr if request else 'n/a'
         log_data = (method.__name__, self.sudo().mapped('display_name'), user.login, user.id, origin)
         if not self.env.is_admin():
@@ -756,6 +758,10 @@ class Module(models.Model):
         # iterate through detected modules and update/create them in db
         for mod_name in modules.get_modules():
             mod = known_mods_names.get(mod_name)
+            # update_list():
+            # Global rules with non-standard fields fail (e.g. ir.module.category.company_id).
+            if mod:
+                mod = mod.sudo(bypass_global_rules=True)
             terp = self.get_module_info(mod_name)
             values = self.get_values_from_terp(terp)
 

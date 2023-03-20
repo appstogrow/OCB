@@ -235,7 +235,17 @@ class MailController(MailController):
             return super(MailController, cls)._redirect_to_record(model, res_id, access_token=access_token, **kwargs)
 
         if issubclass(type(request.env[model]), request.env.registry['portal.mixin']):
-            uid = request.session.uid or request.env.ref('base.public_user').id
+            uid = request.session.uid
+            if not uid:
+                public_group = request.env['base'].sudo().env.ref('base.group_public')
+                website = request.env['website'].sudo().browse(request.website_routing)
+                user = request.env['res.users'].sudo().with_context(active_test=False).search(
+                    [
+                        ('groups_id', 'in', public_group.id),
+                        ('company_id', '=', website.company_id.id),
+                    ]
+                )
+                uid = user.id
             record_sudo = request.env[model].sudo().browse(res_id).exists()
             try:
                 record_sudo.with_user(uid).check_access_rights('read')

@@ -282,7 +282,10 @@ class Registry(Mapping):
         # on a fully loaded registry, and not on a registry being loaded.
         if self.ready:
             for model in env.values():
-                model._register_hook()
+                if model._name in ('multicompany.config', 'multicompany.security'):
+                    model._register_hook(update_module=True)
+                else:
+                    model._register_hook()
             env['base'].flush()
 
     @lazy_property
@@ -403,6 +406,17 @@ class Registry(Mapping):
 
             for model in models:
                 model._auto_init()
+                # APPSTOGROW
+                # If model._auto_init() is not done on every model,
+                # then model.init() may fail,
+                # because of global security rules created by "multicompany_base".
+                # E.g. installing website:
+                # If "res.users" _auto_init() is not done,
+                # then "res.company" init() will fail, because
+                # - base/models/res_company init() will search for companies.
+                # - The company security rule [('id','in',company_ids)] will read users.
+                # - website_id is missing on res.users.
+            for model in models:
                 model.init()
 
             env['ir.model']._reflect_models(model_names)

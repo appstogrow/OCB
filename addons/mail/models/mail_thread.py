@@ -997,10 +997,12 @@ class MailThread(models.AbstractModel):
                 self._routing_create_bounce_email(email_from, body, message, references=message_id, reply_to=self.env.company.email)
                 return []
 
-            dest_aliases = self.env['mail.alias'].search([('alias_name', 'in', rcpt_tos_valid_localparts)])
+            dest_aliases = self.env['mail.alias'].sudo_bypass_global_rules().search([('alias_name', 'in', rcpt_tos_valid_localparts)])
             if dest_aliases:
                 routes = []
                 for alias in dest_aliases:
+                    self = self.with_company(alias.company_id)
+                    alias = alias.with_company(alias.company_id)
                     user_id = self._mail_find_user_for_gateway(email_from, alias=alias).id or self._uid
                     route = (alias.alias_model_id.model, alias.alias_force_thread_id, ast.literal_eval(alias.alias_defaults), user_id, alias)
                     route = self._routing_check_route(message, message_dict, route, raise_exception=True)
@@ -1052,6 +1054,9 @@ class MailThread(models.AbstractModel):
             # disabled subscriptions during message_new/update to avoid having the system user running the
             # email gateway become a follower of all inbound messages
             ModelCtx = Model.with_user(related_user).sudo()
+            if alias:
+                # TODO: check if alias has company_id field
+                ModelCtx = ModelCtx.with_company(alias.company_id)
             if thread_id and hasattr(ModelCtx, 'message_update'):
                 thread = ModelCtx.browse(thread_id)
                 thread.message_update(message_dict)

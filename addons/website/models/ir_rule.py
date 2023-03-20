@@ -16,6 +16,13 @@ class IrRule(models.Model):
         # in backend (if domain set & match)..
         is_frontend = ir_http.get_request_website()
         Website = self.env['website']
+
+        # Problem: loop when website has ir.rule:
+        # _eval_context() > get_current_website() > _compute_domain() > _eval_context()
+        if self.env['ir.module.module'].sudo().search([('name', '=', 'multicompany_base')]).state == 'installed':
+            res['website'] = is_frontend
+            return res
+
         res['website'] = is_frontend and Website.get_current_website() or Website
         return res
 

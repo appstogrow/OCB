@@ -800,25 +800,43 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             for r in missing
         )
         fields = ['module', 'model', 'name', 'res_id']
+        if self.env['ir.model.fields'].search([('name', '=', 'company_id')]):
+            fields.append('company_id')
 
         # disable eventual async callback / support for the extent of
         # the COPY FROM, as these are apparently incompatible
         callback = psycopg2.extensions.get_wait_callback()
         psycopg2.extensions.set_wait_callback(None)
         try:
-            cr.copy_from(io.StringIO(
-                u'\n'.join(
-                    u"%s\t%s\t%s\t%d" % (
-                        modname,
-                        record._name,
-                        xids[record.id][1],
-                        record.id,
-                    )
-                    for record in missing
-                )),
-                table='ir_model_data',
-                columns=fields,
-            )
+            if 'company_id' in fields:
+                cr.copy_from(io.StringIO(
+                    u'\n'.join(
+                        u"%s\t%s\t%s\t%d\t%d" % (
+                            modname,
+                            record._name,
+                            xids[record.id][1],
+                            record.id,
+                            record.company_id.id,
+                        )
+                        for record in missing
+                    )),
+                    table='ir_model_data',
+                    columns=fields,
+                )
+            else:
+                cr.copy_from(io.StringIO(
+                    u'\n'.join(
+                        u"%s\t%s\t%s\t%d" % (
+                            modname,
+                            record._name,
+                            xids[record.id][1],
+                            record.id,
+                        )
+                        for record in missing
+                    )),
+                    table='ir_model_data',
+                    columns=fields,
+                )
         finally:
             psycopg2.extensions.set_wait_callback(callback)
         self.env['ir.model.data'].invalidate_cache(fnames=fields)
@@ -1738,6 +1756,10 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         :return: list of pairs ``(id, text_repr)`` for each records
         :rtype: list(tuple)
         """
+        if self.env.su:
+            # name_get(): Bypass global rules
+            self = self.with_context(bypass_global_rules=True)
+
         result = []
         name = self._rec_name
         if name in self._fields:
@@ -2522,7 +2544,11 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         # fails due to ir.default not being ready
         field = self._fields[column_name]
         if field.default:
-            value = field.default(self)
+            # APPSTOGROW
+            # For databases migrating to multicompany with company_id on each model:
+            # - Will _init_column set default company_id = 1 on every record?
+            #   Then multicompany_base hook _set_company_id_where_null will do nothing!
+            value = field.default(self.sudo_bypass_global_rules())
             value = field.convert_to_write(value, self)
             value = field.convert_to_column(value, self)
         else:
@@ -3260,9 +3286,11 @@ Fields:
         """ Check the companies of the values of the given field names.
 
         :param list fnames: names of relational fields to check
-        :raises UserError: if the `company_id` of the value of any field is not
-            in `[False, self.company_id]` (or `self` if
+        :raises UserError: if the `company_id.id` of the value of any field is not
+            in `[False, self.company_id.id]` (or `self.id` if
             :class:`~odoo.addons.base.models.res_company`).
+
+        If multicompany_base is installed, also accept company_id 1.
 
         For :class:`~odoo.addons.base.models.res_users` relational fields,
         verifies record company is in `company_ids` fields.
@@ -3288,6 +3316,9 @@ Fields:
             return
 
         inconsistencies = []
+        consistent_company_ids = [False]
+        if self.env['ir.module.module'].sudo().search([('name', '=', 'multicompany_base')]).state == 'installed':
+            consistent_company_ids.append(1)
         for record in self:
             company = record.company_id if record._name != 'res.company' else record
             # The first part of the check verifies that all records linked via relation fields are compatible
@@ -3296,9 +3327,9 @@ Fields:
                 corecord = record.sudo()[name]
                 # Special case with `res.users` since an user can belong to multiple companies.
                 if corecord._name == 'res.users' and corecord.company_ids:
-                    if not (company <= corecord.company_ids):
+                    if not (company.id in corecord.company_ids.ids + consistent_company_ids):
                         inconsistencies.append((record, name, corecord))
-                elif not (corecord.company_id <= company):
+                elif not (corecord.company_id.id in [company.id] + consistent_company_ids):
                     inconsistencies.append((record, name, corecord))
             # The second part of the check (for property / company-dependent fields) verifies that the records
             # linked via those relation fields are compatible with the company that owns the property value, i.e.
@@ -3309,9 +3340,9 @@ Fields:
                 # Special case with `res.users` since an user can belong to multiple companies.
                 corecord = record.sudo()[name]
                 if corecord._name == 'res.users' and corecord.company_ids:
-                    if not (company <= corecord.company_ids):
+                    if not (company.id in corecord.company_ids.ids + consistent_company_ids):
                         inconsistencies.append((record, name, corecord))
-                elif not (corecord.company_id <= company):
+                elif not (corecord.company_id.id in [company.id] + consistent_company_ids):
                     inconsistencies.append((record, name, corecord))
 
         if inconsistencies:
@@ -3348,7 +3379,10 @@ Fields:
            :raise UserError: * if current ir.rules do not permit this operation.
            :return: None if the operation is allowed
         """
-        if self.env.su:
+        # check_access_rule()
+        if self.env.su and (
+            self.env.context.get("bypass_global_rules") or self.env.context.get("_force_unlink")
+        ):
             return
 
         # SQL Alternative if computing in-memory is too slow for large dataset
@@ -3379,7 +3413,7 @@ Fields:
 
     def _filter_access_rules(self, operation):
         """ Return the subset of ``self`` for which ``operation`` is allowed. """
-        if self.env.su:
+        if self.env.su and self.env.context.get("bypass_global_rules"):
             return self
 
         if not self._ids:
@@ -4161,6 +4195,8 @@ Fields:
         return self.create(values)
 
     def _load_records(self, data_list, update=False):
+        if self.env.su:
+            self = self.with_context(bypass_global_rules=True)
         """ Create or update records of this model, and assign XMLIDs.
 
             :param data_list: list of dicts with keys `xml_id` (XMLID to
@@ -4300,7 +4336,7 @@ Fields:
 
            :param query: the current query object
         """
-        if self.env.su:
+        if self.env.su and self.env.context.get("bypass_global_rules"):
             return
 
         # apply main rules on the object
@@ -5041,7 +5077,7 @@ Fields:
         """
         return self._browse(env, self._ids, self._prefetch_ids)
 
-    def sudo(self, flag=True):
+    def sudo(self, flag=True, bypass_global_rules=False):
         """ sudo([flag=True])
 
         Returns a new version of this recordset with superuser mode enabled or
@@ -5071,7 +5107,10 @@ Fields:
         if not isinstance(flag, bool):
             _logger.warning("deprecated use of sudo(user), use with_user(user) instead", stack_info=True)
             return self.with_user(flag)
-        return self.with_env(self.env(su=flag))
+        # sudo() should not change bypass_global_rules from True to False
+        if self.env.context.get('bypass_global_rules'):
+            bypass_global_rules = True
+        return self.with_env(self.env(su=flag)).with_context(bypass_global_rules=bypass_global_rules)
 
     def with_user(self, user):
         """ with_user(user)
@@ -5318,6 +5357,10 @@ Fields:
         return self.browse([rec.id for rec in self if func(rec)])
 
     def filtered_domain(self, domain):
+        if self.env.su:
+            self = self.with_context(bypass_global_rules=True)
+            # otherwise this gives error:
+            # data = rec.mapped(key)
         if not domain: return self
         result = []
         for d in reversed(domain):
@@ -5334,7 +5377,7 @@ Fields:
             else:
                 (key, comparator, value) = d
                 if comparator in ('child_of', 'parent_of'):
-                    result.append(self.search([('id', 'in', self.ids), d]))
+                    result.append(self.with_context(active_test=False).search([('id', 'in', self.ids), d]))
                     continue
                 if key.endswith('.id'):
                     key = key[:-3]
@@ -5904,6 +5947,12 @@ Fields:
             The fields and records to recompute have been determined by method
             :meth:`modified`.
         """
+        # APPSTOGROW
+        # Recompute each record with the record's company in the environment.
+        # A new environment will need a new cache.
+        # Therefore reuse the company environment when needed multiple times.
+        # TODO: Test the performance impact of recomputing with company environment.
+        # env = {}
         def process(field):
             recs = self.env.records_to_compute(field)
             if not recs:
@@ -5912,11 +5961,33 @@ Fields:
                 # do not force recomputation on new records; those will be
                 # recomputed by accessing the field on the records
                 recs = recs.filtered('id')
+                # APPSTOGROW 1) Get the companies of the records.
+                recs_bypass = recs.sudo_bypass_global_rules()
+                def _get_company_ids(records):
+                    if records._name == "res.company":
+                        return records.ids
+                    else:
+                        return records.mapped('company_id').ids
                 try:
-                    field.recompute(recs)
+                    company_ids = _get_company_ids(recs_bypass)
                 except MissingError:
-                    existing = recs.exists()
-                    field.recompute(existing)
+                    recs_bypass = existing = recs_bypass.exists()
+                    company_ids = _get_company_ids(recs_bypass)
+                # APPSTOGROW 2) For each company,
+                # get a company environment and recompute the records of that company.
+                for company_id in company_ids:
+                    # if not env.get(company_id):
+                    context = {key: value for key, value in recs.env.context.items()}
+                    context['allowed_company_ids'] = [company_id]
+                    # env[company_id] = api.Environment(recs.env.cr, recs.env.uid, context)
+                    # end if
+                    # env[company_id] = api.Environment(recs.env.cr, recs.env.uid, context, su=True)
+                    env_company_su = api.Environment(recs.env.cr, recs.env.uid, context, su=True)
+                    company_recs_bypass = recs_bypass.filtered(lambda r: r.company_id.id == company_id)
+                    # company_recs = company_recs_bypass.with_env(env[company_id])
+                    company_recs = company_recs_bypass.with_env(env_company_su)
+                    field.recompute(company_recs)
+                if 'existing' in locals():
                     # mark the field as computed on missing records, otherwise
                     # they remain forever in the todo list, and lead to an
                     # infinite loop...

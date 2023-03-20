@@ -218,7 +218,7 @@ def load_module_graph(cr, graph, status=None, perform_checks=True,
 
             if package.state == 'to upgrade':
                 # upgrading the module information
-                module.write(module.get_values_from_terp(package.data))
+                module.with_context(bypass_global_rules=True).write(module.get_values_from_terp(package.data))
             load_data(cr, idref, mode, kind='data', package=package)
             demo_loaded = package.dbdemo = load_demo(cr, package, idref, mode)
             cr.execute('update ir_module_module set demo=%s where id=%s', (demo_loaded, module_id))
@@ -570,7 +570,10 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         # is False.
         env = api.Environment(cr, SUPERUSER_ID, {})
         for model in env.values():
-            model._register_hook()
+            if model._name in ('multicompany.config', 'multicompany.security'):
+                model._register_hook(update_module=update_module)
+            else:
+                model._register_hook()
         env['base'].flush()
 
         # STEP 9: save installed/updated modules for post-install tests

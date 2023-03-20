@@ -55,9 +55,8 @@ class AccountMove(models.Model):
     def _sequence_yearly_regex(self):
         return self.journal_id.sequence_override_regex or super()._sequence_yearly_regex
 
-    @property
-    def _sequence_fixed_regex(self):
-        return self.journal_id.sequence_override_regex or super()._sequence_fixed_regex
+    # REMOVED: def _sequence_fixed_regex(self):
+    # More info in https://github.com/OCA/OCB/pull/1110
 
     @api.model
     def _search_default_journal(self, journal_types):
@@ -171,7 +170,7 @@ class AccountMove(models.Model):
     suitable_journal_ids = fields.Many2many('account.journal', compute='_compute_suitable_journal_ids')
     company_id = fields.Many2one(comodel_name='res.company', string='Company',
                                  store=True, readonly=True,
-                                 compute='_compute_company_id')
+    )
     company_currency_id = fields.Many2one(string='Company Currency', readonly=True,
         related='company_id.currency_id')
     currency_id = fields.Many2one('res.currency', store=True, readonly=True, tracking=True, required=True,
@@ -1143,10 +1142,13 @@ class AccountMove(models.Model):
                 if invoice != invoice._origin:
                     invoice.invoice_line_ids = invoice.line_ids.filtered(lambda line: not line.exclude_from_invoice_tab)
 
-    @api.depends('journal_id')
-    def _compute_company_id(self):
-        for move in self:
-            move.company_id = move.journal_id.company_id or move.company_id or self.env.company
+    # APPSTOGROW
+    # recompute() depends on company_id,
+    # so company_id cannot be a computed field.
+    # @api.depends('journal_id')
+    # def _compute_company_id(self):
+    #     for move in self:
+    #         move.company_id = move.journal_id.company_id or move.company_id or self.env.company
 
     def _get_lines_onchange_currency(self):
         # Override needed for COGS
@@ -1201,8 +1203,8 @@ class AccountMove(models.Model):
                 try:
                     if not move.posted_before:
                         move._constrains_date_sequence()
-                    # Has already a name or is not posted, we don't add to a batch
-                    continue
+                    # REMOVED: continue
+                    # More info in https://github.com/OCA/OCB/pull/1110
                 except ValidationError:
                     # Has never been posted and the name doesn't match the date: recompute it
                     pass
@@ -2615,11 +2617,11 @@ class AccountMove(models.Model):
 
         # Search for partners in copy.
         cc_mail_addresses = email_split(msg_dict.get('cc', ''))
-        followers = [partner for partner in self._mail_find_partner_from_emails(cc_mail_addresses, extra_domain) if partner]
+        followers = [partner for partner in self._mail_find_partner_from_emails(cc_mail_addresses, extra_domain=extra_domain) if partner]
 
         # Search for partner that sent the mail.
         from_mail_addresses = email_split(msg_dict.get('from', ''))
-        senders = partners = [partner for partner in self._mail_find_partner_from_emails(from_mail_addresses, extra_domain) if partner]
+        senders = partners = [partner for partner in self._mail_find_partner_from_emails(from_mail_addresses, extra_domain=extra_domain) if partner]
 
         # Search for partners using the user.
         if not senders:

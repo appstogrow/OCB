@@ -1569,6 +1569,15 @@ class Binary(http.Controller):
     def upload_attachment(self, model, id, ufile, callback=None):
         files = request.httprequest.files.getlist('ufile')
         Model = request.env['ir.attachment']
+        if request.env['ir.module.module'].sudo().search([('name', '=', 'multicompany_base')]).state == 'installed':
+            if model:
+                company = request.env[model].sudo().browse(int(id)).company_id
+            else:
+                # Upload attachment for a new record, e.g. supplier invoice
+                company_id = int(request.httprequest.cookies["cids"].split(",")[0])
+                company = request.env["res.company"].browse(company_id)
+            if company:
+                Model = Model.with_company(company)
         out = """<script language="javascript" type="text/javascript">
                     var win = window.top.window;
                     win.jQuery(win).trigger(%s, %s);

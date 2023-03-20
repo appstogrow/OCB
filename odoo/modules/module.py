@@ -411,7 +411,8 @@ def get_modules():
 
         def is_really_module(name):
             for mname in MANIFEST_NAMES:
-                if os.path.isfile(opj(dir, name, mname)):
+                # APPSTOGROW: Hide test modules
+                if os.path.isfile(opj(dir, name, mname)) and name[:5] != 'test_':
                     return True
         return [
             clean(it)

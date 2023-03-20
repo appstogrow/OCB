@@ -70,12 +70,13 @@ class ResUsers(models.Model):
         uid = super(ResUsers, cls).authenticate(db, login, password, user_agent_env)
         if uid:
             with cls.pool.cursor() as cr:
-                env = api.Environment(cr, uid, {})
+                # APPSTOGROW: Use the companies from the request
+                env = api.Environment(cr, uid, {'allowed_company_ids': request.env.companies.ids})
                 visitor_sudo = env['website.visitor']._get_visitor_from_request()
                 if visitor_sudo:
                     user_partner = env.user.partner_id
                     other_user_visitor_sudo = env['website.visitor'].with_context(active_test=False).sudo().search(
-                        [('partner_id', '=', user_partner.id), ('id', '!=', visitor_sudo.id)],
+                        [('partner_id', '=', user_partner.id), ('id', '!=', visitor_sudo.id), ('company_id', '=', env.company.id)],
                         order='last_connection_datetime DESC',
                     )  # current 13.3 state: 1 result max as unique visitor / partner
                     if other_user_visitor_sudo:

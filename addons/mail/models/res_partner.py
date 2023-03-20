@@ -118,7 +118,12 @@ class Partner(models.Model):
         """
         suggestions = []
         try:
-            suggestions.append([partner.mail_partner_format() for partner in self.env.ref('base.group_user').users.partner_id])
+            partners = self.env.ref('base.group_user').users.partner_id
+            company_ids = self.env.user.sudo(bypass_global_rules=True).company_ids.ids
+            partners.env.companies = self.env['res.company'].sudo(bypass_global_rules=True).search(
+                ['|',('id','in',company_ids),'|',('id','parent_of',company_ids),('id','child_of',company_ids)]
+            )
+            suggestions.append([partner.mail_partner_format() for partner in partners])
         except AccessError:
             pass
         return suggestions

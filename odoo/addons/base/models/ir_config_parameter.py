@@ -107,3 +107,6 @@ class IrConfigParameter(models.Model):
     def unlink(self):
         self.clear_caches()
         return super(IrConfigParameter, self).unlink()
+
+    def sudo(self, bypass_global_rules=True):
+        return super(IrConfigParameter, self).sudo(bypass_global_rules=bypass_global_rules)
