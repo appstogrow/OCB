@@ -134,6 +134,10 @@ class Http(models.AbstractModel):
         """
         if not request.session.uid:
             env = api.Environment(request.cr, SUPERUSER_ID, request.context)
+            # APPSTOGROW (not useful, request.uid will reset company & companies)
+            # company_ids = [int(s) for s in request.httprequest.cookies['cids'].split(',')]
+            # env.company = env['res.company'].browse(company_ids[0])
+            # env.companies = env['res.company'].browse(company_ids)
             website = env['website'].get_current_website()
             request.uid = website and website._get_cached('user_id')
 
