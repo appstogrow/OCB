@@ -899,7 +899,8 @@ Reason(s) of this behavior could be:
     def _send_order_confirmation_mail(self):
         if self.env.su:
             # sending mail in sudo was meant for it being sent from superuser
-            self = self.with_user(SUPERUSER_ID)
+            # APPSTOGROW: Use the correct company to avoid access error.
+            self = self.with_user(SUPERUSER_ID).with_company(self.env.company)
         for order in self:
             template_id = order._find_mail_template(force_confirmation_template=True)
             if template_id:
