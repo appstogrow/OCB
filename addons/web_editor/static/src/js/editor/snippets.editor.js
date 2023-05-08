@@ -52,7 +52,15 @@ var SnippetEditor = Widget.extend({
     init: function (parent, target, templateOptions, $editable, options) {
         this._super.apply(this, arguments);
         this.options = options;
-        this.$editable = $editable;
+        // This is possible to have a snippet editor not inside an editable area
+        // (data-no-check="true") and it is possible to not have editable areas
+        // at all (restricted editor), in that case we just suppose this is the
+        // body so related code can still be executed without crash (as we still
+        // need to instantiate instances of editors even if nothing is really
+        // editable (data-no-check="true" / navigation options / ...)).
+        // TODO this should probably be reviewed in master: do we need a
+        // reference to the editable area? There should be workarounds.
+        this.$editable = $editable && $editable.length ? $editable : $(document.body);
         this.ownerDocument = this.$editable[0].ownerDocument;
         this.$body = $(this.ownerDocument.body);
         this.$target = $(target);
@@ -1156,6 +1164,9 @@ var SnippetsMenu = Widget.extend({
             }
             const $oeStructure = $target.closest('.oe_structure');
             if ($oeStructure.length && !$oeStructure.children().length && this.$snippets) {
+                // Deselect any snippet that might be selected (e.g. within a
+                // mega menu)
+                this._activateSnippet(false);
                 // If empty oe_structure, encourage using snippets in there by
                 // making them "wizz" in the panel.
                 this.$snippets.odooBounce();
@@ -1838,6 +1849,8 @@ var SnippetsMenu = Widget.extend({
         var selectors = [];
         var $styles = $html.find('[data-selector]');
         const snippetAdditionDropIn = $styles.filter('#so_snippet_addition').data('drop-in');
+        const oldFooterSnippetsSelector = 'footer .oe_structure > *';
+        const newFooterSnippetsSelector = 'footer #footer.oe_structure > *:not(.s_popup)';
         $styles.each(function () {
             var $style = $(this);
             var selector = $style.data('selector');
@@ -1852,6 +1865,34 @@ var SnippetsMenu = Widget.extend({
                 let dropInPatch = $style[0].dataset.dropIn.split(', ');
                 dropInPatch = dropInPatch.map(selector => selector === '.content' ? '.content:not(.row)' : selector);
                 $style[0].dataset.dropIn = dropInPatch.join(', ');
+            }
+
+            // Fix in stable: we have removed the option for setting the
+            // background color for snippets in the footer. However, this should
+            // not affect the snippets in the "All pages" popup which is also
+            // located in the footer.
+            if (($style[0].dataset.js === 'ColoredLevelBackground') && exclude) {
+                exclude = exclude
+                    .split(', ')
+                    .map(selector => selector === oldFooterSnippetsSelector ? newFooterSnippetsSelector : selector)
+                    .join(', ');
+            }
+            if (($style[0].dataset.js === 'BackgroundToggler')) {
+                selector = selector
+                    .split(', ')
+                    .map(selector => selector === oldFooterSnippetsSelector ? newFooterSnippetsSelector : selector)
+                    .join(', ');
+            }
+
+            // Fix in stable: before this, modifying a snippet's "bg_filter"
+            // also impacted its child snippets (e.g. Carousel with a
+            // "bg_filter" that contains a snippet with also a "bg_filter").
+            if ($style[0].dataset.optionName === "colorFilter") {
+                const weColorPickerEl = $style[0].querySelector('we-colorpicker');
+                weColorPickerEl.dataset.applyTo = weColorPickerEl.dataset.applyTo
+                    .split(', ')
+                    .map(selector => selector === '.o_we_bg_filter' ? '> .o_we_bg_filter' : selector)
+                    .join(', ');
             }
 
             var target = $style.data('target');
@@ -2180,6 +2221,7 @@ var SnippetsMenu = Widget.extend({
         const smoothScrollOptions = this._getScrollOptions({
             jQueryDraggableOptions: {
                 handle: '.oe_snippet_thumbnail:not(.o_we_already_dragging)',
+                cancel: '.oe_snippet.o_disabled',
                 helper: function () {
                     const dragSnip = this.cloneNode(true);
                     dragSnip.querySelectorAll('.o_delete_btn').forEach(
@@ -2628,7 +2670,7 @@ var SnippetsMenu = Widget.extend({
             $content: $('<div/>', {text: _.str.sprintf(_t("Do you want to install the %s App?"), name)}).append(
                 $('<a/>', {
                     target: '_blank',
-                    href: '/web#id=' + moduleID + '&view_type=form&model=ir.module.module&action=base.open_module_tree',
+                    href: '/web#id=' + encodeURIComponent(moduleID) + '&view_type=form&model=ir.module.module&action=base.open_module_tree',
                     text: _t("More info about this app."),
                     class: 'ml4',
                 })

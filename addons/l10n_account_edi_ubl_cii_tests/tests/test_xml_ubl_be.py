@@ -214,6 +214,42 @@ class TestUBLBE(TestUBLCommon):
     def test_encoding_in_attachment_ubl(self):
         self._test_encoding_in_attachment('ubl_bis3', 'INV_2017_01_0002_ubl_bis3.xml')
 
+    def test_sending_to_public_admin(self):
+        """ A public administration has no VAT, but has an arbitrary number (see:
+        https://pch.gouvernement.lu/fr/peppol.html). When a partner has no VAT, the node PartyTaxScheme should
+        not appear.
+        NB: The `EndpointID` node should be filled with this arbitrary number, that is why `l10n_lu_peppol_id`
+        module was created. However we cannot use it here because it would require adding it to the dependencies of
+        `l10n_account_edi_ubl_cii_tests` in stable.
+        """
+        self.partner_2.vat = None
+        invoice = self._generate_move(
+            self.partner_1,
+            self.partner_2,
+            move_type='out_invoice',
+            invoice_line_ids=[
+                {
+                    'product_id': self.product_a.id,
+                    'quantity': 2,
+                    'price_unit': 100,
+                    'tax_ids': [(6, 0, self.tax_21.ids)],
+                }
+            ],
+        )
+        self._assert_invoice_attachment(
+            invoice,
+            xpaths='''
+                <xpath expr="./*[local-name()='PaymentMeans']/*[local-name()='PaymentID']" position="replace">
+                    <PaymentID>___ignore___</PaymentID>
+                </xpath>
+                <xpath expr=".//*[local-name()='InvoiceLine'][1]/*[local-name()='ID']" position="replace">
+                    <ID>___ignore___</ID>
+                </xpath>
+            ''',
+            expected_file='from_odoo/bis3_out_invoice_public_admin.xml',
+        )
+
+
     ####################################################
     # Test import
     ####################################################
@@ -300,8 +336,8 @@ class TestUBLBE(TestUBLCommon):
         # Source: https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/master/rules/examples
         subfolder = 'tests/test_files/from_peppol-bis-invoice-3_doc'
         # source: Allowance-example.xml
-        self._assert_imported_invoice_from_file(subfolder=subfolder, filename='bis3_allowance.xml', amount_total=6125,
-            amount_tax=1225, list_line_subtotals=[200, -200, 0, -1000, 4000, 1000, 900])
+        self._assert_imported_invoice_from_file(subfolder=subfolder, filename='bis3_allowance.xml', amount_total=7125,
+            amount_tax=1225, list_line_subtotals=[200, -200, 4000, 1000, 900])
         # source: base-creditnote-correction.xml
         self._assert_imported_invoice_from_file(subfolder=subfolder, filename='bis3_credit_note.xml',
             amount_total=1656.25, amount_tax=331.25, list_line_subtotals=[25, 2800, -1500], move_type='in_refund')

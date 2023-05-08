@@ -444,7 +444,7 @@ class AccountEdiFormat(models.Model):
         is_text_plain_xml = 'text/plain' in attachment.mimetype and content.startswith(b'<?xml')
         if 'pdf' in attachment.mimetype:
             to_process.extend(self._decode_pdf(attachment.name, content))
-        elif 'xml' in attachment.mimetype or is_text_plain_xml:
+        elif attachment.mimetype.endswith('/xml') or is_text_plain_xml:
             to_process.extend(self._decode_xml(attachment.name, content))
         else:
             to_process.extend(self._decode_binary(attachment.name, content))
@@ -471,7 +471,7 @@ class AccountEdiFormat(models.Model):
                 except RedirectWarning as rw:
                     raise rw
                 except Exception as e:
-                    _logger.exception("Error importing attachment \"%s\" as invoice with format \"%s\"", file_data['filename'], edi_format.name, str(e))
+                    _logger.exception("Error importing attachment \"%s\" as invoice with format \"%s\"", file_data['filename'], edi_format.name, exc_info=True)
                 if res:
                     if 'extract_state' in res:
                         # Bypass the OCR to prevent overwriting data when an EDI was succesfully imported.
@@ -498,7 +498,7 @@ class AccountEdiFormat(models.Model):
                     else:  # file_data['type'] == 'binary'
                         res = edi_format._update_invoice_from_binary(file_data['filename'], file_data['content'], file_data['extension'], invoice)
                 except Exception as e:
-                    _logger.exception("Error importing attachment \"%s\" as invoice with format \"%s\"", file_data['filename'], edi_format.name, str(e))
+                    _logger.exception("Error importing attachment \"%s\" as invoice with format \"%s\"", file_data['filename'], edi_format.name, exc_info=True)
                 if res:
                     if 'extract_state' in res:
                         # Bypass the OCR to prevent overwriting data when an EDI was succesfully imported.

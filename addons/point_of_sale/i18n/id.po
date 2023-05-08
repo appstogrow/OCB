@@ -8,7 +8,7 @@
 # Edi Santoso <repopamor@gmail.com>, 2020
 # firman firman <firman.olxbpn@gmail.com>, 2020
 # Muhammad Syarif <mhdsyarif.ms@gmail.com>, 2020
-# oon arfiandwi <oon.arfiandwi@gmail.com>, 2020
+# oon arfiandwi (OonID) <oon.arfiandwi@gmail.com>, 2020
 # dimas indra <dprahastra@gmail.com>, 2020
 # Edy Kend <edy@azmall.co.id>, 2020
 # alfieqashwa <alfieqashwa@gmail.com>, 2020
@@ -36,7 +36,7 @@ msgstr ""
 "POT-Creation-Date: 2021-12-09 16:49+0000\n"
 "PO-Revision-Date: 2020-09-07 08:16+0000\n"
 "Last-Translator: Abe Manyo, 2023\n"
-"Language-Team: Indonesian (https://www.transifex.com/odoo/teams/41243/id/)\n"
+"Language-Team: Indonesian (https://app.transifex.com/odoo/teams/41243/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
@@ -132,7 +132,7 @@ msgstr ""
 #: code:addons/point_of_sale/models/pos_order.py:0
 #, python-format
 msgid "<p>Dear %s,<br/>Here is your electronic ticket for the %s. </p>"
-msgstr ""
+msgstr "<p>Yth %s,<br/>Berikut adalah tiket elektronik untuk %s. </p>"
 
 #. module: point_of_sale
 #. openerp-web
@@ -1553,7 +1553,7 @@ msgstr "Batalkan Pilihan Pelanggan"
 #: model_terms:ir.ui.view,arch_db:point_of_sale.customer_facing_display_html
 #: model_terms:pos.config,customer_facing_display_html:point_of_sale.pos_config_main
 msgid "Desk Organizer"
-msgstr ""
+msgstr "Organizer Meja"
 
 #. module: point_of_sale
 #: model:product.product,name:point_of_sale.desk_pad
@@ -2296,7 +2296,7 @@ msgstr "Stok Persediaan"
 #. module: point_of_sale
 #: model_terms:ir.ui.view,arch_db:point_of_sale.res_config_settings_view_form
 msgid "Inventory Management"
-msgstr ""
+msgstr "Manajemen Inventaris"
 
 #. module: point_of_sale
 #. openerp-web

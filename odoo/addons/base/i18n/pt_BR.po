@@ -43,6 +43,8 @@
 # Keli Brugalli <kbr@odoo.com>, 2020
 # Éder Brito <britoederr@gmail.com>, 2021
 # douglas custodio <douglascstd@yahoo.com>, 2022
+# Kevilyn Rosa, 2023
+# Layna Nascimento, 2023
 # 
 msgid ""
 msgstr ""
@@ -50,8 +52,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-27 13:50+0000\n"
 "PO-Revision-Date: 2020-09-07 08:09+0000\n"
-"Last-Translator: douglas custodio <douglascstd@yahoo.com>, 2022\n"
-"Language-Team: Portuguese (Brazil) (https://www.transifex.com/odoo/teams/41243/pt_BR/)\n"
+"Last-Translator: Layna Nascimento, 2023\n"
+"Language-Team: Portuguese (Brazil) (https://app.transifex.com/odoo/teams/41243/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
@@ -17647,7 +17649,7 @@ msgstr "Help with Python expressions"
 #: model:ir.module.category,name:base.module_category_services_helpdesk
 #: model:ir.module.module,shortdesc:base.module_helpdesk
 msgid "Helpdesk"
-msgstr "Suporte Técnico"
+msgstr "Central de Ajuda"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_helpdesk_account
@@ -18977,7 +18979,7 @@ msgstr "Invalid model name %r in action definition."
 #: code:addons/base/models/ir_actions.py:611
 #, python-format
 msgid "many2many fields cannot be evaluated by reference"
-msgstr ""
+msgstr "campos many2many não podem ser avaliados pela referência"
 
 #. module: base
 #: code:addons/template_inheritance.py:0
@@ -19360,7 +19362,7 @@ msgstr "LGPL Version 3"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_lt_reports
 msgid "Lithuania - Accounting Reports"
-msgstr ""
+msgstr "Lituânia - Relatórios de Contabilidade"
 
 #. module: base
 #: code:addons/base/models/ir_ui_view.py:0
@@ -28125,7 +28127,7 @@ msgstr "Envie, valide e fature novamente as despesas do funcionário"
 #. module: base
 #: model:ir.module.category,name:base.module_category_sales_subscription
 msgid "Subscription"
-msgstr "Inscrição"
+msgstr "Assinaturas"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_sale_subscription_sepa_direct_debit
@@ -28685,7 +28687,7 @@ msgstr ""
 #: code:addons/base/models/ir_module.py:0
 #, python-format
 msgid "Those modules cannot be uninstalled: %s"
-msgstr ""
+msgstr "Esses módulos não podem ser desinstalados: %s"
 
 #. module: base
 #: model:ir.model.fields,help:base.field_res_partner_category__active
@@ -31983,7 +31985,7 @@ msgstr "conector Ebay"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_website_sale
 msgid "eCommerce"
-msgstr "Comércio Eletrônico"
+msgstr "e-Commerce"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_website_sale_delivery

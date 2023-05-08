@@ -30,14 +30,15 @@ class AccountEdiFormat(models.Model):
         for proxy_user in proxy_users:
             company = proxy_user.company_id
             try:
-                res = proxy_user._make_request(proxy_user._get_server_url() + '/api/l10n_it_edi/1/in/RicezioneInvoice',
-                                               params={'recipient_codice_fiscale': company.l10n_it_codice_fiscale})
+                res = proxy_user._make_request(proxy_user._get_server_url() + '/api/l10n_it_edi/1/in/RicezioneInvoice')
+
             except AccountEdiProxyError as e:
                 res = {}
                 _logger.error('Error while receiving file from SdiCoop: %s', e)
 
             proxy_acks = []
             for id_transaction, fattura in res.items():
+
                 if self.env['ir.attachment'].search([('name', '=', fattura['filename']), ('res_model', '=', 'account.move')], limit=1):
                     # name should be unique, the invoice already exists
                     _logger.info('E-invoice already exist: %s', fattura['filename'])

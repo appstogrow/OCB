@@ -123,6 +123,9 @@ class AccountEdiXmlCII(models.AbstractModel):
             # Facturx requires the monetary values to be rounded to 2 decimal values
             return float_repr(number, decimal_places)
 
+        # Validate the structure of the taxes
+        self._validate_taxes(invoice)
+
         # Create file content.
         tax_details = invoice._prepare_edi_tax_details(
             grouping_key_generator=lambda tax_values: {
@@ -284,11 +287,11 @@ class AccountEdiXmlCII(models.AbstractModel):
 
         logs += self._import_fill_invoice_allowance_charge(tree, invoice_form, journal, qty_factor)
 
-        # ==== Down Payment (prepaid amount) ====
+        # ==== Prepaid amount ====
 
         prepaid_node = tree.find('.//{*}ApplicableHeaderTradeSettlement/'
                                  '{*}SpecifiedTradeSettlementHeaderMonetarySummation/{*}TotalPrepaidAmount')
-        self._import_fill_invoice_down_payment(invoice_form, prepaid_node, qty_factor)
+        logs += self._import_log_prepaid_amount(invoice_form, prepaid_node, qty_factor)
 
         # ==== invoice_line_ids ====
 
