@@ -146,6 +146,8 @@ class ResUsers(models.Model):
         values['active'] = True
         try:
             with self.env.cr.savepoint():
+                # APPSTGROW: To copy base.template_portal_user_id, bypass global rules.
+                template_user = template_user.sudo_bypass_global_rules()
                 return template_user.with_context(no_reset_password=True).copy(values)
         except Exception as e:
             # copy may failed if asked login is not available.
