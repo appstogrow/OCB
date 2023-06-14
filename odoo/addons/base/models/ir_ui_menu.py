@@ -216,8 +216,10 @@ class IrUiMenu(models.Model):
 
         return menu_root
 
+    # APPSTOGROW: Selecting a new company combination ("sorted_cids") will "load_menus",
+    # if multicomany_base is installed.
     @api.model
-    @tools.ormcache_context('self._uid', 'debug', keys=('lang',))
+    @tools.ormcache_context('self._uid', 'debug', keys=('lang', 'sorted_cids'))
     def load_menus(self, debug):
         """ Loads all menu items (all applications and their sub-menus).
 
