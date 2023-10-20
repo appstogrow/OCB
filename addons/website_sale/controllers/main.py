@@ -149,6 +149,9 @@ class WebsiteSale(http.Controller):
         return pricelist_context, pricelist
 
     def _get_search_order(self, post):
+        # APPSTOGROW
+        # odoo.exceptions.UserError: Invalid "order" specified (is_published desc, name ascThe-Great-Controversy-E-G-White-p12406104, id desc).
+        _logger.info("_get_search_order: post = {}, self = {}".format(post, self))
         # OrderBy will be parsed in orm and so no direct sql injection
         # id is added to be sure that order is a unique sort key
         order = post.get('order') or 'website_sequence ASC'
