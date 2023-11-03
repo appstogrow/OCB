@@ -344,7 +344,7 @@ def safe_eval(expr, globals_dict=None, locals_dict=None, mode="eval", nocopy=Fal
             '._sql': [],
             '.sudo': [],
             '._sudo': [],
-            '._': [],
+            '._': ["._fetch_mails()"],
             '__': [],
         }
         if 'env' in globals_dict and globals_dict['env'].su == True:
