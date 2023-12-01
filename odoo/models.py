@@ -6611,7 +6611,8 @@ class TransientModel(Model):
         """.format(self._table)
         self._cr.execute(query, ["%s seconds" % seconds])
         ids = [x[0] for x in self._cr.fetchall()]
-        self.sudo().browse(ids).unlink()
+        # APPSTOGROW replace sudo()
+        self.sudo_bypass_global_rules().browse(ids).unlink()
 
 
 def itemgetter_tuple(items):
