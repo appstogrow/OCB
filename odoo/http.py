@@ -1514,7 +1514,11 @@ def db_filter(dbs, httprequest=None):
     if odoo.tools.config['dbfilter']:
         d, h = re.escape(d), re.escape(h)
         r = odoo.tools.config['dbfilter'].replace('%h', h).replace('%d', d)
-        dbs = [i for i in dbs if re.match(r, i)]
+        dbs = [
+            i for i in dbs
+            if re.match(r, i)
+            and not (d in ["fredheim", "granheims"] and i == "aut.to")
+        ]
     elif odoo.tools.config['db_name']:
         # In case --db-filter is not provided and --database is passed, Odoo will
         # use the value of --database as a comma seperated list of exposed databases.
