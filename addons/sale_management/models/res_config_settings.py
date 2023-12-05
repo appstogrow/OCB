@@ -22,7 +22,7 @@ class ResConfigSettings(models.TransientModel):
     def set_values(self):
         if not self.group_sale_order_template:
             self.company_so_template_id = None
-            self.env['res.company'].sudo().search([]).write({
+            self.env['res.company'].sudo_bypass_global_rules().search([]).write({
                 'sale_order_template_id': False,
             })
         return super(ResConfigSettings, self).set_values()
