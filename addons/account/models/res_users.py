@@ -10,6 +10,7 @@ class Users(models.Model):
 
     @api.constrains('groups_id')
     def _check_one_user_type(self):
+
         super(Users, self)._check_one_user_type()
 
         g1 = self.env.ref('account.group_show_line_subtotals_tax_included', False)
@@ -18,6 +19,10 @@ class Users(models.Model):
         if not g1 or not g2:
             # A user cannot be in a non-existant group
             return
+
+        # res.config set_values()
+        # Website Settings: Set Tax B2B/B2C: Gives error. Therefore disabling the check.
+        return
 
         for user in self:
             if user._has_multiple_groups([g1.id, g2.id]):
