@@ -1514,10 +1514,11 @@ def db_filter(dbs, httprequest=None):
     if odoo.tools.config['dbfilter']:
         d, h = re.escape(d), re.escape(h)
         r = odoo.tools.config['dbfilter'].replace('%h', h).replace('%d', d)
+        r = r.replace("inspi", "granheims")
         dbs = [
             i for i in dbs
             if re.match(r, i)
-            and not (d in ["fredheim"] and i == "aut.to")
+            and not (d in ["fredheim", "granheims", "inspi"] and i == "aut.to")
         ]
     elif odoo.tools.config['db_name']:
         # In case --db-filter is not provided and --database is passed, Odoo will
