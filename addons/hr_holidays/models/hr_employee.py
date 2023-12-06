@@ -196,7 +196,7 @@ class HrEmployeeBase(models.AbstractModel):
                 old_managers -= self.env['res.users'].browse(values['leave_manager_id'])
                 approver_group = self.env.ref('hr_holidays.group_hr_holidays_responsible', raise_if_not_found=False)
                 if approver_group:
-                    approver_group.sudo().write({'users': [(4, values['leave_manager_id'])]})
+                    approver_group.sudo_bypass_global_rules().write({'users': [(4, values['leave_manager_id'])]})
 
         res = super(HrEmployeeBase, self).write(values)
         # remove users from the Responsible group if they are no longer leave managers
