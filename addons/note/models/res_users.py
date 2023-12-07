@@ -42,7 +42,7 @@ GROUP BY id"""
             if not stage:
                 break
             for user in self:
-                stage.sudo().copy(default={'user_id': user.id})
+                stage.sudo_bypass_global_rules().copy(default={'user_id': user.id})
         else:
             _logger.debug("Created note columns for %s", self)
 
