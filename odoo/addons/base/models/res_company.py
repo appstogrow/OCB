@@ -302,10 +302,11 @@ class Company(models.Model):
         return main_company
 
     """
+    APPSTOGROW
     oca/server-auth/password_security needs to read the stored user.company_id.
-    When another company is selected, sudo(bypass_global_rules=False) causes error.
+    Bypass company rules so it works when another company is selected.
     """
     def _read(self, fields):
         if self.env.su:
-            self = self.with_context(bypass_global_rules=True)
+            self = self.bypass_company_rules()
         super(Company, self)._read(fields)

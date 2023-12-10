@@ -259,7 +259,7 @@ class MailMail(models.Model):
             smtp_session = None
             try:
                 # APPSTOGROW msudo: Temporarily send all emails from system mail server.
-                smtp_session = self.env['ir.mail_server'].sudo(bypass_global_rules=True).connect(mail_server_id=server_id)
+                smtp_session = self.env['ir.mail_server'].bypass_company_rules().connect(mail_server_id=server_id)
             except Exception as exc:
                 if raise_exception:
                     # To be consistent and backward compatible with mail_mail.send() raised

@@ -25,6 +25,8 @@ class IrRule(models.Model):
     perm_write = fields.Boolean(string='Apply for Write', default=True)
     perm_create = fields.Boolean(string='Apply for Create', default=True)
     perm_unlink = fields.Boolean(string='Apply for Delete', default=True)
+    # APPSTOGROW
+    company_rule = fields.Boolean(help="Used by multicompany_base and bypass_company_rules()")
 
     _sql_constraints = [
         ('no_access_rights',
@@ -42,7 +44,7 @@ class IrRule(models.Model):
 
     @api.model
     def _eval_context(self):
-        self = self.sudo(bypass_global_rules=True)
+        self = self.bypass_company_rules()
         """Returns a dictionary to use as evaluation context for
            ir.rule domains.
            Note: company_ids contains the ids of the activated companies
@@ -114,9 +116,6 @@ class IrRule(models.Model):
         if mode not in self._MODES:
             raise ValueError('Invalid mode: %r' % (mode,))
 
-        if self.env.su and self.env.context.get("bypass_global_rules"):
-            return self.browse(())
-
         query = """ SELECT r.id FROM ir_rule r JOIN ir_model m ON (r.model_id=m.id)
                     WHERE m.model=%s AND r.active AND r.perm_{mode}
                     AND (r.id IN (SELECT rule_group_id FROM rule_group_rel rg
@@ -125,14 +124,30 @@ class IrRule(models.Model):
                          OR r.global)
                     ORDER BY r.id
                 """.format(mode=mode)
-
+        # APPSTOGROW
         if self.env.su:
             query = """ SELECT r.id FROM ir_rule r JOIN ir_model m ON (r.model_id=m.id)
                         WHERE m.model=%s AND r.active AND r.perm_{mode}
-                        AND r.global
+                        AND r.company_rule
                         ORDER BY r.id
                         -- %s
                     """.format(mode=mode)
+        # APPSTOGROW (all company rules are global rules)
+        if self.env.context.get("bypass_company_rules"):
+            query = """ SELECT r.id FROM ir_rule r JOIN ir_model m ON (r.model_id=m.id)
+                        WHERE m.model=%s AND r.active AND r.perm_{mode}
+                        AND (r.id IN (SELECT rule_group_id FROM rule_group_rel rg
+                                    JOIN res_groups_users_rel gu ON (rg.group_id=gu.gid)
+                                    WHERE gu.uid=%s)
+                            OR
+                            (r.global AND NOT r.company_rule)
+                        )
+                        ORDER BY r.id
+                    """.format(mode=mode)
+        # APPSTOGROW
+        if self.env.su and self.env.context.get("bypass_company_rules"):
+            return self.browse(())
+
         self._cr.execute(query, (model_name, self._uid))
         return self.browse(row[0] for row in self._cr.fetchall())
 
@@ -149,7 +164,7 @@ class IrRule(models.Model):
 
         # browse user and rules as SUPERUSER_ID to avoid access errors!
         eval_context = self._eval_context()
-        user_groups = self.sudo(bypass_global_rules=True).env.user.groups_id
+        user_groups = self.bypass_company_rules().env.user.groups_id
         global_domains = []                     # list of domains
         group_domains = []                      # list of domains
         for rule in rules.sudo():
@@ -240,7 +255,7 @@ class IrRule(models.Model):
         resolution_info = _("Contact your administrator to request access if necessary.")
 
         # APPSTOGROW: Max privileges are needed to read the user
-        user_sudo = self.env.user.sudo(bypass_global_rules=True)
+        user_sudo = self.env.user.bypass_company_rules()
         if not user_sudo.has_group('base.group_no_one') or not user_sudo.has_group('base.group_user'):
             msg = """{operation_error}
 
@@ -256,7 +271,7 @@ class IrRule(models.Model):
         rules = self._get_failing(records, mode=operation).sudo()
 
         # APPSTOGROW: Max privileges are needed to avoid a loop.
-        records_description = ', '.join(['%s (id=%s)' % (rec.display_name, rec.id) for rec in records[:6].sudo_bypass_global_rules()])
+        records_description = ', '.join(['%s (id=%s)' % (rec.display_name, rec.id) for rec in records[:6].sudo().bypass_company_rules()])
         failing_records = _("Records: %s", records_description)
 
         user_description = '%s (id=%s)' % (self.env.user.name, self.env.user.id)

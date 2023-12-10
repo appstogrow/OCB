@@ -907,7 +907,11 @@ class MailThread(models.AbstractModel):
             for ref in tools.mail_header_msgid_re.findall(thread_references)
             if 'reply_to' not in ref
         ]
-        mail_messages = self.env['mail.message'].sudo().search([('message_id', 'in', msg_references)], limit=1, order='id desc, message_id')
+        # APPSTOGROW: Fetch mail for multiple companies with one email account.
+        mail_messages = self.env['mail.message'].sudo().bypass_company_rules().search([('message_id', 'in', msg_references)], limit=1, order='id desc, message_id')
+        if mail_messages:
+            mail_messages = mail_messages.with_company(mail_messages.company_id)
+            self = self.with_company(mail_messages.company_id)
         is_a_reply = bool(mail_messages)
         reply_model, reply_thread_id = mail_messages.model, mail_messages.res_id
 
@@ -997,7 +1001,7 @@ class MailThread(models.AbstractModel):
                 self._routing_create_bounce_email(email_from, body, message, references=message_id, reply_to=self.env.company.email)
                 return []
 
-            dest_aliases = self.env['mail.alias'].sudo_bypass_global_rules().search([('alias_name', 'in', rcpt_tos_valid_localparts)])
+            dest_aliases = self.env['mail.alias'].search([('alias_name', 'in', rcpt_tos_valid_localparts)])
             if dest_aliases:
                 routes = []
                 for alias in dest_aliases:
@@ -1066,6 +1070,9 @@ class MailThread(models.AbstractModel):
                 thread = ModelCtx.message_new(message_dict, custom_values)
                 thread_id = thread.id
                 subtype_id = thread._creation_subtype().id
+
+            # APPSTOGROW: Fetch mail for multiple companies with one email account.
+            thread = thread.with_record_company()
 
             # replies to internal message are considered as notes, but parent message
             # author is added in recipients to ensure he is notified of a private answer

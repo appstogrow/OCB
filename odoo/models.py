@@ -1761,8 +1761,8 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
         :rtype: list(tuple)
         """
         if self.env.su:
-            # name_get(): Bypass global rules
-            self = self.with_context(bypass_global_rules=True)
+            # name_get(): Bypass company rules
+            self = self.bypass_company_rules()
 
         result = []
         name = self._rec_name
@@ -2552,7 +2552,7 @@ class BaseModel(MetaModel('DummyModel', (object,), {'_register': False})):
             # For databases migrating to multicompany with company_id on each model:
             # - Will _init_column set default company_id = 1 on every record?
             #   Then multicompany_base hook _set_company_id_where_null will do nothing!
-            value = field.default(self.sudo_bypass_global_rules())
+            value = field.default(self.bypass_company_rules())
             value = field.convert_to_write(value, self)
             value = field.convert_to_column(value, self)
         else:
@@ -3388,7 +3388,7 @@ Fields:
         """
         # check_access_rule()
         if self.env.su and (
-            self.env.context.get("bypass_global_rules") or self.env.context.get("_force_unlink")
+            self.env.context.get("bypass_company_rules") or self.env.context.get("_force_unlink")
         ):
             return
 
@@ -3420,7 +3420,7 @@ Fields:
 
     def _filter_access_rules(self, operation):
         """ Return the subset of ``self`` for which ``operation`` is allowed. """
-        if self.env.su and self.env.context.get("bypass_global_rules"):
+        if self.env.su and self.env.context.get("bypass_company_rules"):
             return self
 
         if not self._ids:
@@ -4198,7 +4198,7 @@ Fields:
 
     def _load_records(self, data_list, update=False):
         if self.env.su:
-            self = self.with_context(bypass_global_rules=True)
+            self = self.bypass_company_rules()
         """ Create or update records of this model, and assign XMLIDs.
 
             :param data_list: list of dicts with keys `xml_id` (XMLID to
@@ -4349,7 +4349,7 @@ Fields:
 
            :param query: the current query object
         """
-        if self.env.su and self.env.context.get("bypass_global_rules"):
+        if self.env.su and self.env.context.get("bypass_company_rules"):
             return
 
         # apply main rules on the object
@@ -5090,7 +5090,7 @@ Fields:
         """
         return self._browse(env, self._ids, self._prefetch_ids)
 
-    def sudo(self, flag=True, bypass_global_rules=False):
+    def sudo(self, flag=True):
         """ sudo([flag=True])
 
         Returns a new version of this recordset with superuser mode enabled or
@@ -5120,10 +5120,7 @@ Fields:
         if not isinstance(flag, bool):
             _logger.warning("deprecated use of sudo(user), use with_user(user) instead", stack_info=True)
             return self.with_user(flag)
-        # sudo() should not change bypass_global_rules from True to False
-        if self.env.context.get('bypass_global_rules'):
-            bypass_global_rules = True
-        return self.with_env(self.env(su=flag)).with_context(bypass_global_rules=bypass_global_rules)
+        return self.with_env(self.env(su=flag))
 
     def with_user(self, user):
         """ with_user(user)
@@ -5371,7 +5368,7 @@ Fields:
 
     def filtered_domain(self, domain):
         if self.env.su:
-            self = self.with_context(bypass_global_rules=True)
+            self = self.bypass_company_rules()
             # otherwise this gives error:
             # data = rec.mapped(key)
         if not domain: return self
@@ -5975,7 +5972,7 @@ Fields:
                 # recomputed by accessing the field on the records
                 recs = recs.filtered('id')
                 # APPSTOGROW 1) Get the companies of the records.
-                recs_bypass = recs.sudo_bypass_global_rules()
+                recs_bypass = recs.bypass_company_rules()
                 def _get_company_ids(records):
                     if records._name == "res.company":
                         return records.ids
@@ -6606,7 +6603,7 @@ class TransientModel(Model):
         self._cr.execute(query, ["%s seconds" % seconds])
         ids = [x[0] for x in self._cr.fetchall()]
         # APPSTOGROW replace sudo()
-        self.sudo_bypass_global_rules().browse(ids).unlink()
+        self.sudo().bypass_company_rules().browse(ids).unlink()
 
 
 def itemgetter_tuple(items):
