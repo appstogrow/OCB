@@ -910,7 +910,7 @@ actual arch.
         views can add additional specific rights like creating columns for
         many2one-based grouping views. """
         # testing ACL as real user
-        Model = self.env[model].sudo(False)
+        Model = self.env[model].sudo().with_context(bypass_company_rules=False)
         is_base_model = self.env.context.get('base_model_name', model) == model
 
         if node.tag in ('kanban', 'tree', 'form', 'activity', 'calendar'):
@@ -1786,7 +1786,7 @@ actual arch.
 
         rec = self.browse(it[0] for it in self._cr.fetchall())
         # APPSTOGROW: Bypass global rules because the query may get views from any company.
-        return rec.sudo_bypass_global_rules().with_context({'load_all_views': True})._check_xml()
+        return rec.bypass_company_rules().with_context({'load_all_views': True})._check_xml()
 
     @api.model
     def _validate_module_views(self, module):
@@ -1841,7 +1841,7 @@ actual arch.
     def _load_records_write(self, values):
         # Global rules with non-standard fields fail (e.g. ir.ui.view.company_id not in base).
         if self.env.su:
-            self = self.with_context(bypass_global_rules=True)
+            self = self.bypass_company_rules()
         """ During module update, when updating a generic view, we should also
             update its specific views (COW'd).
             Note that we will only update unmodified fields. That will mimic the

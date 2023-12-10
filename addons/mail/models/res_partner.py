@@ -119,8 +119,13 @@ class Partner(models.Model):
         suggestions = []
         try:
             partners = self.env.ref('base.group_user').users.partner_id
-            company_ids = self.env.user.sudo(bypass_global_rules=True).company_ids.ids
-            partners.env.companies = self.env['res.company'].sudo(bypass_global_rules=True).search(
+            # APPSTOGROW
+            # If parent/child companies are not needed, then this will work:
+            #    partners.env.companies = self.env.user.bypass_company_rules().company_ids
+            # For security reasons, a user cannot read parent/child companies,
+            # because a user may become a user of every company which the user can read.
+            company_ids = self.env.user.bypass_company_rules().company_ids.ids
+            partners.env.companies = self.env['res.company'].bypass_company_rules().search(
                 ['|',('id','in',company_ids),'|',('id','parent_of',company_ids),('id','child_of',company_ids)]
             )
             suggestions.append([partner.mail_partner_format() for partner in partners])

@@ -38,11 +38,12 @@ GROUP BY id"""
 
     def _create_note_stages(self):
         for num in range(4):
-            stage = self.env.ref('note.note_stage_%02d' % (num,), raise_if_not_found=False)
+            # APPSTOGROW:  using sudo() to bypass the global rule "Each user have his stage name"
+            stage = self.sudo().bypass_company_rules().env.ref('note.note_stage_%02d' % (num,), raise_if_not_found=False)
             if not stage:
                 break
             for user in self:
-                stage.sudo_bypass_global_rules().copy(default={'user_id': user.id})
+                stage.copy(default={'user_id': user.id})
         else:
             _logger.debug("Created note columns for %s", self)
 

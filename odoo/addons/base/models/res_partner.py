@@ -271,8 +271,8 @@ class Partner(models.Model):
         # This doesn't avoid access error:
         #     partner = partner.with_record_company()
         if self.env.su:
-            self = self.with_context(bypass_global_rules=True)
-        super_partner = self.env['res.users'].with_context(bypass_global_rules=True).browse(SUPERUSER_ID).partner_id
+            self = self.bypass_company_rules()
+        super_partner = self.env['res.users'].bypass_company_rules().browse(SUPERUSER_ID).partner_id
         if super_partner in self:
             super_partner.partner_share = False
         for partner in self - super_partner:

@@ -130,17 +130,14 @@ class Base(models.AbstractModel):
                             # with user.write({'company_id': 1, 'company_ids': [[4, 1, 0]})
                             self.env[model_name].browse(res_id).access_control(raise_if_access_error=True)
 
-    def access_control(self, raise_if_access_error, check_access_rights=True):
+    def access_control(self, raise_if_access_error):
         """
         Use cases:
         - self.env.ref('xmlid'): .access_control() is added to the api.
         - create() & write() for security reasons.
         """
         # access_ok will always be True in superuser mode.
-        if check_access_rights:
-            access_ok = self.check_access_rights('read', raise_exception=raise_if_access_error)
-        else:
-            access_ok = True
+        access_ok = self.check_access_rights('read', raise_exception=raise_if_access_error)
 
         if not self.env.user:
             rule_ok = True
@@ -158,7 +155,7 @@ class Base(models.AbstractModel):
                 raise AccessError("access_control() failed for this record: {},{}".format(self, id))
 
     def record_company(self):
-        self = self.sudo_bypass_global_rules()
+        self = self.bypass_company_rules()
         try:
             company = self.mapped('company_id')
         except:
@@ -171,8 +168,5 @@ class Base(models.AbstractModel):
         company = self.record_company()
         return self.with_company(company) if company else self
 
-    def sudo_bypass_global_rules(self):
-        try:
-            return self.sudo(bypass_global_rules=True)
-        except:
-            return self.sudo()
+    def bypass_company_rules(self):
+        return self.with_context(bypass_company_rules=True)

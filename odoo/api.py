@@ -521,13 +521,12 @@ class Environment(Mapping):
         su = (user is None and self.su) if su is None else su
         return Environment(cr, uid, context, su, self.uid_origin)
 
-    def ref(self, xml_id, raise_if_not_found=True, check_access_rights=True):
+    def ref(self, xml_id, raise_if_not_found=True):
         """Return the record corresponding to the given ``xml_id``."""
         result = self['ir.model.data'].xmlid_to_object(xml_id, raise_if_not_found=raise_if_not_found)
         if result:
             return result.access_control(
                 raise_if_access_error=raise_if_not_found,
-                check_access_rights=check_access_rights,
             )
         return result
 
