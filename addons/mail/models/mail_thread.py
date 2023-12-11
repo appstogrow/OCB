@@ -1001,7 +1001,7 @@ class MailThread(models.AbstractModel):
                 self._routing_create_bounce_email(email_from, body, message, references=message_id, reply_to=self.env.company.email)
                 return []
 
-            dest_aliases = self.env['mail.alias'].search([('alias_name', 'in', rcpt_tos_valid_localparts)])
+            dest_aliases = self.env['mail.alias'].bypass_company_rules().search([('alias_name', 'in', rcpt_tos_valid_localparts)])
             if dest_aliases:
                 routes = []
                 for alias in dest_aliases:
