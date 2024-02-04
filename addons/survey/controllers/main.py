@@ -345,9 +345,9 @@ class Survey(http.Controller):
 
         survey_content = False
         if answer_sudo.state == 'done':
-            survey_content = request.env.ref('survey.survey_fill_form_done')._render(survey_data)
+            survey_content = survey_sudo.env.ref('survey.survey_fill_form_done')._render(survey_data)
         else:
-            survey_content = request.env.ref('survey.survey_fill_form_in_progress')._render(survey_data)
+            survey_content = survey_sudo.env.ref('survey.survey_fill_form_in_progress')._render(survey_data)
 
         survey_progress = False
         if answer_sudo.state == 'in_progress' and not survey_data.get('question', request.env['survey.question']).is_page:
@@ -371,7 +371,7 @@ class Survey(http.Controller):
         return {
             'survey_content': survey_content,
             'survey_progress': survey_progress,
-            'survey_navigation': request.env.ref('survey.survey_navigation')._render(survey_data),
+            'survey_navigation': survey_sudo.env.ref('survey.survey_navigation')._render(survey_data),
         }
 
     @http.route('/survey/<string:survey_token>/<string:answer_token>', type='http', auth='public', website=True)

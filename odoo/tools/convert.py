@@ -456,7 +456,9 @@ form: module.record_id""" % (xml_id,)
 
             if '.' not in a_action:
                 a_action = '%s.%s' % (self.module, a_action)
-            act = self.env.ref(a_action).sudo()
+            # _tag_menuitem():
+            # Global rules with non-standard fields fail (e.g. ir.ui.menu.company_id not in base).
+            act = self.env.ref(a_action).sudo().bypass_company_rules()
             values['action'] = "%s,%d" % (act.type, act.id)
 
             if not values.get('name') and act.type.endswith(('act_window', 'wizard', 'url', 'client', 'server')) and act.name:
@@ -789,6 +791,8 @@ def convert_csv_import(cr, module, fname, csvcontent, idref=None, mode='init',
         warning_msg = "\n".join(msg['message'] for msg in result['messages'])
         raise Exception(_('Module loading %s failed: file %s could not be processed:\n %s') % (module, fname, warning_msg))
 
+from .misc import frozendict
+
 def convert_xml_import(cr, module, xmlfile, idref=None, mode='init', noupdate=False, report=None):
     doc = etree.parse(xmlfile)
     schema = os.path.join(config['root_path'], 'import_xml.rng')
@@ -811,4 +815,9 @@ def convert_xml_import(cr, module, xmlfile, idref=None, mode='init', noupdate=Fa
     else:
         xml_filename = xmlfile.name
     obj = xml_import(cr, module, idref, mode, noupdate=noupdate, xml_filename=xml_filename)
+    # APPSTOGROW Bypass global rules to avoid problems with non-standard fields (e.g. company_id) not in base
+    if obj.env.su:
+        context = dict(obj.env.context)
+        context.update({'bypass_company_rules': True})
+        obj.env.context = frozendict(context)
     obj.parse(doc.getroot())

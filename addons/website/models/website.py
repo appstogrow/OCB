@@ -629,7 +629,8 @@ class Website(models.Model):
         <div id="wrap" class="oe_structure oe_empty"/>
     </t>
 </t>''' % (self.id)
-        standard_homepage.with_context(website_id=self.id).arch_db = new_homepage_view
+        # TODO: Test if necessary with_context(bypass_company_rules=False)
+        standard_homepage.with_context(bypass_company_rules=False).sudo().with_context(website_id=self.id).arch_db = new_homepage_view
 
         homepage_page = Page.search([
             ('website_id', '=', self.id),
@@ -656,6 +657,7 @@ class Website(models.Model):
             new_menu = menu.copy({
                 'parent_id': t_menu.id,
                 'website_id': self.id,
+                'page_id': None,
             })
             for submenu in menu.child_id:
                 copy_menu(submenu, new_menu)
@@ -1032,7 +1034,7 @@ class Website(models.Model):
 
         # Sort on country_group_ids so that we fall back on a generic website:
         # websites with empty country_group_ids will be first.
-        found_websites = self.search([('domain', 'ilike', _remove_port(domain_name))]).sorted('country_group_ids')
+        found_websites = self.bypass_company_rules().search([('domain', 'ilike', _remove_port(domain_name))]).sorted('country_group_ids')
         # Filter for the exact domain (to filter out potential subdomains) due
         # to the use of ilike.
         websites = found_websites.filtered(lambda w: _filter_domain(w, domain_name))

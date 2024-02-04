@@ -10,6 +10,7 @@ class ResCompany(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         companies = super(ResCompany, self).create(vals_list)
+        self = self.with_company(new_company)
         ProductPricelist = self.env['product.pricelist']
         for new_company in companies:
             pricelist = ProductPricelist.search([
@@ -36,8 +37,10 @@ class ResCompany(models.Model):
         # given currency.
         ProductPricelist = self.env['product.pricelist']
         currency_id = values.get('currency_id')
-        main_pricelist = self.env.ref('product.list0', False)
-        if currency_id and main_pricelist:
+        main_pricelist = self.env['ir.property']._get_default_property(
+            'property_product_pricelist', 'res.partner',
+        )
+        if currency_id and type(main_pricelist) is type(self.env["product.pricelist"]):
             nb_companies = self.search_count([])
             for company in self:
                 existing_pricelist = ProductPricelist.search(

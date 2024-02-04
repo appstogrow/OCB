@@ -127,7 +127,7 @@ class Company(models.Model):
     # partner's contact address
     def _compute_address(self):
         for company in self.filtered(lambda company: company.partner_id):
-            address_data = company.partner_id.sudo().address_get(adr_pref=['contact'])
+            address_data = company.partner_id.sudo().with_record_company().address_get(adr_pref=['contact'])
             if address_data['contact']:
                 partner = company.partner_id.browse(address_data['contact']).sudo()
                 company.update(company._get_company_address_update(partner))
@@ -221,7 +221,7 @@ class Company(models.Model):
         self.clear_caches()
         company = super(Company, self).create(vals)
         # The write is made on the user to set it automatically in the multi company group.
-        self.env.user.write({'company_ids': [Command.link(company.id)]})
+        self.env.user.sudo().write({'company_ids': [Command.link(company.id)]})
 
         # Make sure that the selected currency is enabled
         if vals.get('currency_id'):
@@ -303,8 +303,18 @@ class Company(models.Model):
     @api.model
     def _get_main_company(self):
         try:
-            main_company = self.sudo().env.ref('base.main_company')
+            main_company = self.sudo().env.ref('base.main_company', raise_if_not_found=False)
         except ValueError:
             main_company = self.env['res.company'].sudo().search([], limit=1, order="id")
 
         return main_company
+
+    """
+    APPSTOGROW
+    oca/server-auth/password_security needs to read the stored user.company_id.
+    Bypass company rules so it works when another company is selected.
+    """
+    def _read(self, fields):
+        if self.env.su:
+            self = self.bypass_company_rules()
+        super(Company, self)._read(fields)

@@ -133,6 +133,10 @@ class Http(models.AbstractModel):
         """
         if not request.session.uid:
             env = api.Environment(request.cr, SUPERUSER_ID, request.context)
+            # APPSTOGROW (not useful, request.uid will reset company & companies)
+            # company_ids = [int(s) for s in request.httprequest.cookies['cids'].split(',')]
+            # env.company = env['res.company'].browse(company_ids[0])
+            # env.companies = env['res.company'].browse(company_ids)
             website = env['website'].get_current_website()
             request.uid = website and website._get_cached('user_id')
 
@@ -194,6 +198,12 @@ class Http(models.AbstractModel):
             with reg.cursor() as cr:
                 env = api.Environment(cr, SUPERUSER_ID, {})
                 request.website_routing = env['website'].get_current_website().id
+
+        website_id = request.context.get('website_id')
+        if website_id:
+            company = request.env['website'].browse(website_id).record_company()
+            if company:
+                request.env.company = company
 
         response = super(Http, cls)._dispatch()
 
