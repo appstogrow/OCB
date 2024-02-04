@@ -22,6 +22,8 @@ class Website(models.Model):
     salesperson_id = fields.Many2one('res.users', string='Salesperson')
 
     def _get_default_website_team(self):
+        if self.env['ir.module.module'].sudo().search([('name', '=', 'multicompany_base')]).state == 'installed':
+            return None
         try:
             team = self.env.ref('sales_team.salesteam_website_sales')
             return team if team.active else None
@@ -202,8 +204,9 @@ class Website(models.Model):
 
     @api.model
     def sale_get_payment_term(self, partner):
-        pt = self.env.ref('account.account_payment_term_immediate', False).sudo()
+        pt = self.env.ref('account.account_payment_term_immediate', False)
         if pt:
+            pt = pt.sudo() # Fixed in 16.0
             pt = (not pt.company_id.id or self.company_id.id == pt.company_id.id) and pt
         return (
             partner.property_payment_term_id or

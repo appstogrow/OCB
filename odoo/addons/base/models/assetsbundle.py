@@ -333,8 +333,11 @@ class AssetsBundle(object):
             'type': 'binary',
             'public': True,
             'raw': content.encode('utf8'),
+            'company_id': 1,
         }
-        attachment = ira.with_user(SUPERUSER_ID).create(values)
+        # APPSTOGROW: Create assets in main company.
+        main_company = self.env['base'].sudo().bypass_company_rules().env.ref('base.main_company')
+        attachment = ira.with_user(SUPERUSER_ID).with_company(main_company).create(values)
         url = self.get_asset_url(
             id=attachment.id,
             unique=self.version,

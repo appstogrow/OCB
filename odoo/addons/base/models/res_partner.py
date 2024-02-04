@@ -283,6 +283,14 @@ class Partner(models.Model):
             return "base/static/img/money.png"
         return super()._avatar_get_placeholder_path()
 
+    # This field is used by global rules.
+    company_ids = fields.Many2many('res.company', string="Companies", compute='_compute_company_ids', store=True)
+
+    @api.depends('user_ids.company_ids')
+    def _compute_company_ids(self):
+        for record in self:
+            record.company_ids = record.user_ids.mapped('company_ids')
+
     @api.depends('is_company', 'name', 'parent_id.display_name', 'type', 'company_name', 'commercial_company_name')
     def _compute_display_name(self):
         diff = dict(show_address=None, show_address_only=None, show_email=None, html_format=None, show_vat=None)
@@ -303,7 +311,12 @@ class Partner(models.Model):
 
     @api.depends('user_ids.share', 'user_ids.active')
     def _compute_partner_share(self):
-        super_partner = self.env['res.users'].browse(SUPERUSER_ID).partner_id
+        # SUPSERUSER needs access to all partners.
+        # This doesn't avoid access error:
+        #     partner = partner.with_record_company()
+        if self.env.su:
+            self = self.bypass_company_rules()
+        super_partner = self.env['res.users'].bypass_company_rules().browse(SUPERUSER_ID).partner_id
         if super_partner in self:
             super_partner.partner_share = False
         for partner in self - super_partner:
@@ -605,6 +618,7 @@ class Partner(models.Model):
                     action_error = users._action_show()
                     raise RedirectWarning(error_msg, action_error, _('Go to users'))
                 else:
+                  if partner.user_ids[0].active:
                     raise ValidationError(_('You cannot archive contacts linked to an active user.\n'
                                             'Ask an administrator to archive their associated user first.\n\n'
                                             'Linked active users :\n%(names)s', names=", ".join([u.display_name for u in users])))

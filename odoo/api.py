@@ -589,7 +589,9 @@ class Environment(Mapping):
         if res_model and res_id:
             record = self[res_model].browse(res_id)
             if record.exists():
-                return record
+                return record.access_control(
+                    raise_if_access_error=raise_if_not_found,
+                )
             if raise_if_not_found:
                 raise ValueError('No record found for unique ID %s. It may have been deleted.' % (xml_id))
         return None

@@ -523,6 +523,9 @@ class View(models.Model):
             ], limit=1)
             if website_specific_view:
                 self = website_specific_view
+        if current_website:
+            company = current_website.record_company()
+            self = self.with_company(company) if company else self
         super(View, self).save(value, xpath=xpath)
 
     @api.model

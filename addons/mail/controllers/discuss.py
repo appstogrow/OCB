@@ -431,10 +431,12 @@ class DiscussController(http.Controller):
 
     @http.route('/mail/read_followers', methods=['POST'], type='json', auth='user')
     def read_followers(self, res_model, res_id):
+        record = request.env[res_model].browse(res_id)
+        company = record.record_company()
         request.env['mail.followers'].check_access_rights("read")
-        request.env[res_model].check_access_rights("read")
-        request.env[res_model].browse(res_id).check_access_rule("read")
-        follower_recs = request.env['mail.followers'].search([('res_model', '=', res_model), ('res_id', '=', res_id)])
+        record.check_access_rights("read")
+        record.with_record_company().check_access_rule("read")
+        follower_recs = request.env['mail.followers'].with_company(company).search([('res_model', '=', res_model), ('res_id', '=', res_id)])
 
         followers = []
         follower_id = None
@@ -467,7 +469,7 @@ class DiscussController(http.Controller):
         follower = request.env['mail.followers'].sudo().browse(follower_id)
         follower.ensure_one()
         request.env[follower.res_model].check_access_rights("read")
-        record = request.env[follower.res_model].browse(follower.res_id)
+        record = request.env[follower.res_model].browse(follower.res_id).with_record_company()
         record.check_access_rule("read")
 
         # find current model subtypes, add them to a dictionary
@@ -489,7 +491,7 @@ class DiscussController(http.Controller):
 
     @http.route('/mail/get_suggested_recipients', methods=['POST'], type='json', auth='user')
     def message_get_suggested_recipients(self, model, res_ids):
-        records = request.env[model].browse(res_ids)
+        records = request.env[model].browse(res_ids).with_record_company()
         try:
             records.check_access_rule('read')
             records.check_access_rights('read')
