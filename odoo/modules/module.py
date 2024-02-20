@@ -369,21 +369,8 @@ def load_information_from_description_file(module, mod_path=None):
             info['license'] = 'LGPL-3'
             _logger.warning("Missing `license` key in manifest for '%s', defaulting to LGPL-3", module)
 
-        # auto_install is either `False` (by default) in which case the module
-        # is opt-in, either a list of dependencies in which case the module is
-        # automatically installed if all dependencies are (special case: [] to
-        # always install the module), either `True` to auto-install the module
-        # in case all dependencies declared in `depends` are installed.
-        if isinstance(info['auto_install'], collections.abc.Iterable):
-            info['auto_install'] = set(info['auto_install'])
-            non_dependencies = info['auto_install'].difference(info['depends'])
-            assert not non_dependencies,\
-                "auto_install triggers must be dependencies, found " \
-                "non-dependencies [%s] for module %s" % (
-                    ', '.join(non_dependencies), module
-                )
-        elif info['auto_install']:
-            info['auto_install'] = set(info['depends'])
+        # DISABLE AUTO_INSTALL
+        info['auto_install'] = False
 
         info['version'] = adapt_version(info['version'])
         return info
