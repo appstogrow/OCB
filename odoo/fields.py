@@ -572,7 +572,8 @@ class Field(MetaField('DummyField', (object,), {})):
         # A readonly related field without an inverse method should not have a
         # default value, as it does not make sense.
         if self.default and self.readonly and not self.inverse:
-            _logger.warning("Redundant default on %s", self)
+            # multicompany_base sets default company_id, may be double, ignore warning
+            _logger.debug("Redundant default on %s", self)
 
         # copy attributes from field to self (string, help, etc.)
         for attr, prop in self.related_attrs:
