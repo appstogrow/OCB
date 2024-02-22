@@ -410,23 +410,21 @@ def load_manifest(module, mod_path=None):
         manifest['license'] = 'LGPL-3'
         _logger.warning("Missing `license` key in manifest for %r, defaulting to LGPL-3", module)
 
-    # # auto_install is either `False` (by default) in which case the module
-    # # is opt-in, either a list of dependencies in which case the module is
-    # # automatically installed if all dependencies are (special case: [] to
-    # # always install the module), either `True` to auto-install the module
-    # # in case all dependencies declared in `depends` are installed.
-    # if isinstance(manifest['auto_install'], collections.abc.Iterable):
-    #     manifest['auto_install'] = set(manifest['auto_install'])
-    #     non_dependencies = manifest['auto_install'].difference(manifest['depends'])
-    #     assert not non_dependencies,\
-    #         "auto_install triggers must be dependencies, found " \
-    #         "non-dependencies [%s] for module %s" % (
-    #             ', '.join(non_dependencies), module
-    #         )
-    # elif manifest['auto_install']:
-    #     manifest['auto_install'] = set(manifest['depends'])
-    # APPSTOGROW: DISABLE AUTO_INSTALL
-    manifest['auto_install'] = False
+    # auto_install is either `False` (by default) in which case the module
+    # is opt-in, either a list of dependencies in which case the module is
+    # automatically installed if all dependencies are (special case: [] to
+    # always install the module), either `True` to auto-install the module
+    # in case all dependencies declared in `depends` are installed.
+    if isinstance(manifest['auto_install'], collections.abc.Iterable):
+        manifest['auto_install'] = set(manifest['auto_install'])
+        non_dependencies = manifest['auto_install'].difference(manifest['depends'])
+        assert not non_dependencies,\
+            "auto_install triggers must be dependencies, found " \
+            "non-dependencies [%s] for module %s" % (
+                ', '.join(non_dependencies), module
+            )
+    elif manifest['auto_install']:
+        manifest['auto_install'] = set(manifest['depends'])
 
     manifest['version'] = adapt_version(manifest['version'])
     manifest['addons_path'] = normpath(opj(mod_path, os.pardir))
