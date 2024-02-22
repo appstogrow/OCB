@@ -671,7 +671,8 @@ class Website(models.Model):
         <div id="wrap" class="oe_structure oe_empty"/>
     </t>
 </t>'''
-        standard_homepage.with_context(website_id=self.id).arch_db = new_homepage_view
+        # TODO: Test if necessary with_context(bypass_company_rules=False)
+        standard_homepage.with_context(bypass_company_rules=False).sudo().with_context(website_id=self.id).arch_db = new_homepage_view
 
         homepage_page = Page.search([
             ('website_id', '=', self.id),
@@ -697,6 +698,7 @@ class Website(models.Model):
             new_menu = menu.copy({
                 'parent_id': t_menu.id,
                 'website_id': self.id,
+                'page_id': None,
             })
             for submenu in menu.child_id:
                 copy_menu(submenu, new_menu)
@@ -1021,7 +1023,7 @@ class Website(models.Model):
                 domain_name = _remove_port(domain_name)
             return website_domain.lower() == (domain_name or '').lower()
 
-        found_websites = self.search([('domain', 'ilike', _remove_port(domain_name))])
+        found_websites = self.bypass_company_rules().search([('domain', 'ilike', _remove_port(domain_name))])
         # Filter for the exact domain (to filter out potential subdomains) due
         # to the use of ilike.
         # `domain_name` could be an empty string, in that case multiple website

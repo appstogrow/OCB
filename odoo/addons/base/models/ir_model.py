@@ -1046,6 +1046,7 @@ class IrModelFields(models.Model):
             'relation_table': field.relation if field.type == 'many2many' else None,
             'column1': field.column1 if field.type == 'many2many' else None,
             'column2': field.column2 if field.type == 'many2many' else None,
+            'company_id': 1,
         }
 
     def _reflect_fields(self, model_names):
@@ -2312,6 +2313,8 @@ class IrModelData(models.Model):
 
     @api.model
     def _process_end_unlink_record(self, record):
+        if record.env.su:
+            record = record.bypass_company_rules()
         record.unlink()
 
     @api.model

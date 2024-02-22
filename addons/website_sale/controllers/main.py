@@ -171,6 +171,9 @@ class WebsiteSale(http.Controller):
     ]
 
     def _get_search_order(self, post):
+        # APPSTOGROW
+        # odoo.exceptions.UserError: Invalid "order" specified (is_published desc, name ascThe-Great-Controversy-E-G-White-p12406104, id desc).
+        _logger.info("_get_search_order: post = {}, self = {}".format(post, self))
         # OrderBy will be parsed in orm and so no direct sql injection
         # id is added to be sure that order is a unique sort key
         order = post.get('order') or request.env['website'].get_current_website().shop_default_sort
@@ -1470,7 +1473,7 @@ class WebsiteSale(http.Controller):
             'errors': self._get_shop_payment_errors(order),
             'partner': order.partner_invoice_id,
             'order': order,
-            'payment_action_id': request.env.ref('payment.action_payment_provider').id,
+            'payment_action_id': request.env['ir.actions.act_window'].sudo().env.ref('payment.action_payment_provider').id,
             # Payment form common (checkout and manage) values
             'providers': providers_sudo,
             'tokens': tokens,
@@ -1608,6 +1611,7 @@ class WebsiteSale(http.Controller):
     def print_saleorder(self, **kwargs):
         sale_order_id = request.session.get('sale_last_order_id')
         if sale_order_id:
+            # APPSTOGROW msudo: ref() access control
             pdf, _ = request.env['ir.actions.report'].sudo()._render_qweb_pdf('sale.action_report_saleorder', [sale_order_id])
             pdfhttpheaders = [('Content-Type', 'application/pdf'), ('Content-Length', u'%s' % len(pdf))]
             return request.make_response(pdf, headers=pdfhttpheaders)

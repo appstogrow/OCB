@@ -194,12 +194,13 @@ class Company(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         companies = super().create(vals_list)
+        company = company.with_company(company)
         for company in companies:
             company.sudo()._create_per_company_locations()
             company.sudo()._create_per_company_sequences()
             company.sudo()._create_per_company_picking_types()
             company.sudo()._create_per_company_rules()
-        self.env['stock.warehouse'].sudo().create([{
+        company.env['stock.warehouse'].sudo().create([{
             'name': company.name,
             'code': self.env.context.get('default_code') or company.name[:5],
             'company_id': company.id,

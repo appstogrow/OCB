@@ -173,6 +173,12 @@ class Http(models.AbstractModel):
             website = request.env['website'].get_current_website()
             request.website_routing = website.id
 
+        website_id = request.context.get('website_id')
+        if website_id:
+            company = request.env['website'].browse(website_id).record_company()
+            if company:
+                request.env.company = company
+
         return super()._match(path)
 
     @classmethod

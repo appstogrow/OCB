@@ -16,6 +16,8 @@ class Website(models.Model):
     _inherit = 'website'
 
     def _default_salesteam_id(self):
+        if self.env['ir.module.module'].sudo().search([('name', '=', 'multicompany_base')]).state == 'installed':
+            return None
         team = self.env.ref('sales_team.salesteam_website_sales', False)
         if team and team.active:
             return team.id

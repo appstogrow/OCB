@@ -80,9 +80,14 @@ class ResUsers(models.Model):
             visitor_pre_authenticate_sudo = request.env['website.visitor']._get_visitor_from_request()
         uid = super(ResUsers, cls).authenticate(db, login, password, user_agent_env)
         if uid and visitor_pre_authenticate_sudo:
+            # APPSTOGROW: Use the companies from the request
+            # cids = request.env.companies.ids
+            # env = api.Environment(cr, uid, {'allowed_company_ids': cids})
             env = api.Environment(request.env.cr, uid, {})
             user_partner = env.user.partner_id
             visitor_current_user_sudo = env['website.visitor'].sudo().search([
+                # APPSTOGROW
+                # ('partner_id', '=', user_partner.id), ('id', '!=', visitor_sudo.id), ('company_id', '=', env.company.id),
                 ('partner_id', '=', user_partner.id)
             ], limit=1)
             if visitor_current_user_sudo:

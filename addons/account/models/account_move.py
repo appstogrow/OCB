@@ -73,9 +73,8 @@ class AccountMove(models.Model):
     def _sequence_yearly_regex(self):
         return self.journal_id.sequence_override_regex or super()._sequence_yearly_regex
 
-    @property
-    def _sequence_fixed_regex(self):
-        return self.journal_id.sequence_override_regex or super()._sequence_fixed_regex
+    # REMOVED: def _sequence_fixed_regex(self):
+    # More info in https://github.com/OCA/OCB/pull/1110
 
 
     # ==============================================================================================
@@ -146,7 +145,6 @@ class AccountMove(models.Model):
     company_id = fields.Many2one(
         comodel_name='res.company',
         string='Company',
-        compute='_compute_company_id', inverse='_inverse_company_id', store=True, readonly=False, precompute=True,
         index=True,
     )
     line_ids = fields.One2many(
@@ -605,10 +603,13 @@ class AccountMove(models.Model):
             record.hide_post_button = record.state != 'draft' \
                 or record.auto_post != 'no' and record.date > fields.Date.context_today(record)
 
-    @api.depends('journal_id')
-    def _compute_company_id(self):
-        for move in self:
-            company_id = move.journal_id.company_id or self.env.company
+    # APPSTOGROW
+    # recompute() depends on company_id,
+    # so company_id cannot be a computed field.
+    # @api.depends('journal_id')
+    # def _compute_company_id(self):
+    #     for move in self:
+    #         company_id = move.journal_id.company_id or self.env.company
             if company_id != move.company_id:
                 move.company_id = company_id
 
@@ -4268,11 +4269,11 @@ class AccountMove(models.Model):
 
         # Search for partners in copy.
         cc_mail_addresses = email_split(msg_dict.get('cc', ''))
-        followers = [partner for partner in self._mail_find_partner_from_emails(cc_mail_addresses, extra_domain) if partner]
+        followers = [partner for partner in self._mail_find_partner_from_emails(cc_mail_addresses, extra_domain=extra_domain) if partner]
 
         # Search for partner that sent the mail.
         from_mail_addresses = email_split(msg_dict.get('from', ''))
-        senders = partners = [partner for partner in self._mail_find_partner_from_emails(from_mail_addresses, extra_domain) if partner]
+        senders = partners = [partner for partner in self._mail_find_partner_from_emails(from_mail_addresses, extra_domain=extra_domain) if partner]
 
         # Search for partners using the user.
         if not senders:

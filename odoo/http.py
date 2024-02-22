@@ -330,8 +330,13 @@ def db_filter(dbs, host=None):
 
         dbfilter_re = re.compile(
             config["dbfilter"].replace("%h", re.escape(host))
-                              .replace("%d", re.escape(domain)))
-        return [db for db in dbs if dbfilter_re.match(db)]
+                              .replace("%d", re.escape(domain))
+                              .replace("inspi", "granheims")
+        )
+
+        return [db for db in dbs if dbfilter_re.match(db)
+            and not (domain in ["fredheim", "granheims", "inspi"] and db == "aut.to")
+        ]
 
     if config['db_name']:
         # In case --db-filter is not provided and --database is passed, Odoo will

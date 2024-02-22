@@ -682,6 +682,7 @@ class Users(models.Model):
         if (portal_user_template and portal_user_template in self) or (default_user_template and default_user_template in self):
             raise UserError(_('Deleting the template users is not allowed. Deleting this profile will compromise critical functionalities.'))
 
+    # Replaced in multicompany_base
     @api.model
     def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
         args = args or []
@@ -789,7 +790,7 @@ class Users(models.Model):
         ip = request.httprequest.environ['REMOTE_ADDR'] if request else 'n/a'
         try:
             with cls.pool.cursor() as cr:
-                self = api.Environment(cr, SUPERUSER_ID, {})[cls._name]
+                self = api.Environment(cr, SUPERUSER_ID, {})[cls._name].bypass_company_rules()
                 with self._assert_can_auth(user=login):
                     user = self.search(self._get_login_domain(login), order=self._get_login_order(), limit=1)
                     if not user:

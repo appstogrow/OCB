@@ -434,7 +434,7 @@ class expression(object):
         """
         self._unaccent_wrapper = get_unaccent_wrapper(model._cr)
         self._has_trigram = model.pool.has_trigram
-        self.root_model = model
+        self.root_model = model.bypass_company_rules()
         self.root_alias = alias or model._table
 
         # normalize and prepare the expression for parsing

@@ -465,7 +465,7 @@ class DiscussController(http.Controller):
         follower = request.env['mail.followers'].sudo().browse(follower_id)
         follower.ensure_one()
         request.env[follower.res_model].check_access_rights("read")
-        record = request.env[follower.res_model].browse(follower.res_id)
+        record = request.env[follower.res_model].browse(follower.res_id).with_record_company()
         record.check_access_rule("read")
 
         # find current model subtypes, add them to a dictionary
@@ -588,7 +588,7 @@ class DiscussController(http.Controller):
 
     @http.route('/mail/link_preview', methods=['POST'], type='json', auth='public')
     def mail_link_preview(self, message_id):
-        if not request.env['mail.link.preview'].sudo()._is_link_preview_enabled():
+        if not request.env['mail.link.preview'].sudo().with_record_company()._is_link_preview_enabled():
             return
         guest = request.env['mail.guest']._get_guest_from_request(request)
         message = guest.env['mail.message'].search([('id', '=', int(message_id))])

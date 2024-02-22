@@ -861,7 +861,8 @@ class SaleOrder(models.Model):
 
         if self.env.su:
             # sending mail in sudo was meant for it being sent from superuser
-            self = self.with_user(SUPERUSER_ID)
+            # APPSTOGROW: Use the correct company to avoid access error.
+            self = self.with_user(SUPERUSER_ID).with_company(self.env.company)
 
         for sale_order in self:
             mail_template = sale_order._get_confirmation_template()

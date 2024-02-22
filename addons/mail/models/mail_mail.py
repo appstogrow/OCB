@@ -408,7 +408,8 @@ class MailMail(models.Model):
         for mail_server_id, smtp_from, batch_ids in self._split_by_mail_configuration():
             smtp_session = None
             try:
-                smtp_session = self.env['ir.mail_server'].connect(mail_server_id=mail_server_id, smtp_from=smtp_from)
+                # APPSTOGROW msudo: Temporarily send all emails from system mail server.
+                smtp_session = self.env['ir.mail_server'].bypass_company_rules().connect(mail_server_id=mail_server_id, smtp_from=smtp_from)
             except Exception as exc:
                 if raise_exception:
                     # To be consistent and backward compatible with mail_mail.send() raised

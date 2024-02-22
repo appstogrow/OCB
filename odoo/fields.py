@@ -623,7 +623,8 @@ class Field(MetaField('DummyField', (object,), {})):
         # A readonly related field without an inverse method should not have a
         # default value, as it does not make sense.
         if self.default and self.readonly and not self.inverse:
-            _logger.warning("Redundant default on %s", self)
+            # multicompany_base sets default company_id, may be double, ignore warning
+            _logger.debug("Redundant default on %s", self)
 
         # copy attributes from field to self (string, help, etc.)
         for attr, prop in self.related_attrs:
@@ -1373,9 +1374,13 @@ class Field(MetaField('DummyField', (object,), {})):
 
     def compute_value(self, records):
         """ Invoke the compute method on ``records``; the results are in cache. """
+        company1 = records.env.company
         env = records.env
         if self.compute_sudo:
             records = records.sudo()
+            company2 = records.env.company
+            if company1 != company2:
+                _logger.warning("compute_value: {}.env.company: {} -> {}".format(records, company1, company2))
         fields = records.pool.field_computed[self]
 
         # Just in case the compute method does not assign a value, we already
@@ -1389,6 +1394,10 @@ class Field(MetaField('DummyField', (object,), {})):
 
         try:
             with records.env.protecting(fields, records):
+                # APPSTOGROW cannot do:
+                # records = records.with_record_company()
+                # user.employee_id should depend on the active company, not the user's company!
+                # TODO: If needed, use records.with_record_company() before calling compute_value()
                 records._compute_field_value(self)
         except Exception:
             for field in fields:

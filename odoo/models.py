@@ -881,25 +881,43 @@ class BaseModel(metaclass=MetaModel):
             for r in missing
         )
         fields = ['module', 'model', 'name', 'res_id']
+        if self.env['ir.model.fields'].search([('name', '=', 'company_id')]):
+            fields.append('company_id')
 
         # disable eventual async callback / support for the extent of
         # the COPY FROM, as these are apparently incompatible
         callback = psycopg2.extensions.get_wait_callback()
         psycopg2.extensions.set_wait_callback(None)
         try:
-            cr.copy_from(io.StringIO(
-                u'\n'.join(
-                    u"%s\t%s\t%s\t%d" % (
-                        modname,
-                        record._name,
-                        xids[record.id][1],
-                        record.id,
-                    )
-                    for record in missing
-                )),
-                table='ir_model_data',
-                columns=fields,
-            )
+            if 'company_id' in fields:
+                cr.copy_from(io.StringIO(
+                    u'\n'.join(
+                        u"%s\t%s\t%s\t%d\t%d" % (
+                            modname,
+                            record._name,
+                            xids[record.id][1],
+                            record.id,
+                            record.company_id.id,
+                        )
+                        for record in missing
+                    )),
+                    table='ir_model_data',
+                    columns=fields,
+                )
+            else:
+                cr.copy_from(io.StringIO(
+                    u'\n'.join(
+                        u"%s\t%s\t%s\t%d" % (
+                            modname,
+                            record._name,
+                            xids[record.id][1],
+                            record.id,
+                        )
+                        for record in missing
+                    )),
+                    table='ir_model_data',
+                    columns=fields,
+                )
         finally:
             psycopg2.extensions.set_wait_callback(callback)
         self.env['ir.model.data'].invalidate_model(fields)
@@ -1554,6 +1572,10 @@ class BaseModel(metaclass=MetaModel):
         :return: list of pairs ``(id, text_repr)`` for each record
         :rtype: list[(int, str)]
         """
+        if self.env.su:
+            # name_get(): Bypass company rules
+            self = self.bypass_company_rules()
+
         result = []
         name = self._rec_name
         if name in self._fields:
@@ -2506,7 +2528,11 @@ class BaseModel(metaclass=MetaModel):
         # fails due to ir.default not being ready
         field = self._fields[column_name]
         if field.default:
-            value = field.default(self)
+            # APPSTOGROW
+            # For databases migrating to multicompany with company_id on each model:
+            # - Will _init_column set default company_id = 1 on every record?
+            #   Then multicompany_base hook _set_company_id_where_null will do nothing!
+            value = field.default(self.bypass_company_rules())
             value = field.convert_to_write(value, self)
             value = field.convert_to_column(value, self)
         else:
@@ -3385,9 +3411,11 @@ class BaseModel(metaclass=MetaModel):
         """ Check the companies of the values of the given field names.
 
         :param list fnames: names of relational fields to check
-        :raises UserError: if the `company_id` of the value of any field is not
-            in `[False, self.company_id]` (or `self` if
+        :raises UserError: if the `company_id.id` of the value of any field is not
+            in `[False, self.company_id.id]` (or `self.id` if
             :class:`~odoo.addons.base.models.res_company`).
+
+        If multicompany_base is installed, also accept company_id 1.
 
         For :class:`~odoo.addons.base.models.res_users` relational fields,
         verifies record company is in `company_ids` fields.
@@ -3413,6 +3441,9 @@ class BaseModel(metaclass=MetaModel):
             return
 
         inconsistencies = []
+        consistent_company_ids = [False]
+        if self.env['ir.module.module'].sudo().search([('name', '=', 'multicompany_base')]).state == 'installed':
+            consistent_company_ids.append(1)
         for record in self:
             company = record.company_id if record._name != 'res.company' else record
             # The first part of the check verifies that all records linked via relation fields are compatible
@@ -3421,9 +3452,9 @@ class BaseModel(metaclass=MetaModel):
                 corecord = record.sudo()[name]
                 # Special case with `res.users` since an user can belong to multiple companies.
                 if corecord._name == 'res.users' and corecord.company_ids:
-                    if not (company <= corecord.company_ids):
+                    if not (company.id in corecord.company_ids.ids + consistent_company_ids):
                         inconsistencies.append((record, name, corecord))
-                elif not (corecord.company_id <= company):
+                elif not (corecord.company_id.id in [company.id] + consistent_company_ids):
                     inconsistencies.append((record, name, corecord))
             # The second part of the check (for property / company-dependent fields) verifies that the records
             # linked via those relation fields are compatible with the company that owns the property value, i.e.
@@ -3434,9 +3465,9 @@ class BaseModel(metaclass=MetaModel):
                 # Special case with `res.users` since an user can belong to multiple companies.
                 corecord = record.sudo()[name]
                 if corecord._name == 'res.users' and corecord.company_ids:
-                    if not (company <= corecord.company_ids):
+                    if not (company.id in corecord.company_ids.ids + consistent_company_ids):
                         inconsistencies.append((record, name, corecord))
-                elif not (corecord.company_id <= company):
+                elif not (corecord.company_id.id in [company.id] + consistent_company_ids):
                     inconsistencies.append((record, name, corecord))
 
         if inconsistencies:
@@ -3477,7 +3508,10 @@ class BaseModel(metaclass=MetaModel):
         :return: None if the operation is allowed
         :raise UserError: if current ``ir.rules`` do not permit this operation.
         """
-        if self.env.su:
+        # check_access_rule()
+        if self.env.su and (
+            self.env.context.get("bypass_company_rules") or self.env.context.get("_force_unlink")
+        ):
             return
 
         # SQL Alternative if computing in-memory is too slow for large dataset
@@ -3508,7 +3542,7 @@ class BaseModel(metaclass=MetaModel):
 
     def _filter_access_rules(self, operation):
         """ Return the subset of ``self`` for which ``operation`` is allowed. """
-        if self.env.su:
+        if self.env.su and self.env.context.get("bypass_company_rules"):
             return self
 
         if not self._ids:
@@ -4319,6 +4353,8 @@ class BaseModel(metaclass=MetaModel):
         return self.create(values)
 
     def _load_records(self, data_list, update=False):
+        if self.env.su:
+            self = self.bypass_company_rules()
         """ Create or update records of this model, and assign XMLIDs.
 
             :param data_list: list of dicts with keys `xml_id` (XMLID to
@@ -4465,7 +4501,7 @@ class BaseModel(metaclass=MetaModel):
 
         :param query: the current query object
         """
-        if self.env.su:
+        if self.env.su and self.env.context.get("bypass_company_rules"):
             return
 
         # apply main rules on the object
@@ -5444,6 +5480,10 @@ class BaseModel(metaclass=MetaModel):
         return self.browse([rec.id for rec in self if func(rec)])
 
     def filtered_domain(self, domain):
+        if self.env.su:
+            self = self.bypass_company_rules()
+            # otherwise this gives error:
+            # data = rec.mapped(key)
         """Return the records in ``self`` satisfying the domain and keeping the same order.
 
         :param domain: :ref:`A search domain <reference/orm/domains>`.
@@ -5466,7 +5506,7 @@ class BaseModel(metaclass=MetaModel):
             else:
                 (key, comparator, value) = leaf
                 if comparator in ('child_of', 'parent_of'):
-                    stack.append(set(self.search([('id', 'in', self.ids), leaf], order='id')._ids))
+                    stack.append(set(self.with_context(active_test=False).search([('id', 'in', self.ids), leaf], order='id')._ids))
                     continue
 
                 if key.endswith('.id'):
@@ -6822,7 +6862,8 @@ class TransientModel(Model):
         """.format(self._table)
         self._cr.execute(query, ["%s seconds" % seconds])
         ids = [x[0] for x in self._cr.fetchall()]
-        self.sudo().browse(ids).unlink()
+        # APPSTOGROW replace sudo()
+        self.sudo().bypass_company_rules().browse(ids).unlink()
 
 
 def itemgetter_tuple(items):

@@ -123,3 +123,6 @@ class IrConfigParameter(models.Model):
     def unlink_default_parameters(self):
         for record in self.filtered(lambda p: p.key in _default_parameters.keys()):
             raise ValidationError(_("You cannot delete the %s record.", record.key))
+
+    def sudo(self):
+        return super().sudo().bypass_company_rules()
