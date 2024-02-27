@@ -145,6 +145,10 @@ class AccountMove(models.Model):
     company_id = fields.Many2one(
         comodel_name='res.company',
         string='Company',
+        # APPSTOGROW
+        # recompute() depends on company_id,
+        # so company_id cannot be a computed field.
+        # compute='_compute_company_id', inverse='_inverse_company_id', store=True, readonly=False, precompute=True,
         index=True,
     )
     line_ids = fields.One2many(
@@ -603,13 +607,10 @@ class AccountMove(models.Model):
             record.hide_post_button = record.state != 'draft' \
                 or record.auto_post != 'no' and record.date > fields.Date.context_today(record)
 
-    # APPSTOGROW
-    # recompute() depends on company_id,
-    # so company_id cannot be a computed field.
-    # @api.depends('journal_id')
-    # def _compute_company_id(self):
-    #     for move in self:
-    #         company_id = move.journal_id.company_id or self.env.company
+    @api.depends('journal_id')
+    def _compute_company_id(self):
+        for move in self:
+            company_id = move.journal_id.company_id or self.env.company
             if company_id != move.company_id:
                 move.company_id = company_id
 
