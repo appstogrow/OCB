@@ -22,9 +22,12 @@ def _get_model_name_and_res_id(self, field, data):
         comodel_name = field.comodel_name
         res_id = _get_value(field.name, data)
     elif field.type == 'many2one_reference':
-        try:
+        default_comodel_name = self.env.context.get("default_" + field.model_field)
+        if field.model_field in data:
             comodel_name = _get_value(field.model_field, data)
-        except:
+        elif default_comodel_name:
+            comodel_name = default_comodel_name
+        else:
             # mail.activity action_close_dialog():
             # mail.activity.res_id is connected with res_model_id instead of res_model
             model_field = self._fields[field.model_field]
