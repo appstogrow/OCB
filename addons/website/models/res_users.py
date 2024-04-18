@@ -79,9 +79,12 @@ class ResUsers(models.Model):
         if uid:
             with cls.pool.cursor() as cr:
                 # APPSTOGROW: Use the companies from the request
-                cids = request.env.companies.ids
-                # cids = [int(s) for s in request.httprequest.cookies['cids'].split(',')]
-                env = api.Environment(cr, uid, {'allowed_company_ids': cids})
+                try:
+                    cids = request.env.companies.ids
+                    # cids = [int(s) for s in request.httprequest.cookies['cids'].split(',')]
+                    env = api.Environment(cr, uid, {'allowed_company_ids': cids})
+                except: # failing with external API
+                    env = api.Environment(cr, uid, {})
                 
                 visitor_sudo = env['website.visitor']._get_visitor_from_request()
                 if visitor_sudo:
